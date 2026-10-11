@@ -14,7 +14,7 @@ repo: https://github.com/jacobvillar/gabay
 
 ## 1. Corpus and why
 
-Four official Philippine government documents: the DOLE Handbook on Workers' Statutory Monetary Benefits, the SSS Citizens Charter, a PhilHealth Konsulta circular, and a Pag-IBIG programs briefer (1,305 chunks). Workers ask high-stakes questions here (13th-month pay, leave, contributions, loans), general chatbots get the figures subtly wrong, and the documents are public, so every answer can link to the exact page it came from. Pages are extracted one at a time with PDF ligature repair, packed on sentence boundaries into ~1,000-character chunks with 150 overlap, and tagged with title, agency, page and source URL. Retrieval is hybrid (dense + BM25 keyword, top 8), exposed to Groq's GPT-OSS 120B as a tool call.
+Four official Philippine government documents: the DOLE Handbook on Workers' Statutory Monetary Benefits, the SSS Citizens Charter, a PhilHealth Konsulta circular, and a Pag-IBIG programs briefer (1,305 chunks). Workers ask high-stakes questions here (13th-month pay, leave, contributions, loans), general chatbots get the figures subtly wrong, and the documents are public, so every answer can link to the exact page it came from. Pages are extracted one at a time with PDF ligature repair, packed on sentence boundaries into ~1,000-character chunks with 150 overlap, tagged with title, agency, page and source URL, and embedded inside Upstash with text-embedding-3-small. Retrieval is hybrid (dense + BM25 keyword, top 8), exposed to Groq's GPT-OSS 120B as a tool call.
 
 ## 2. The trickiest decision
 
