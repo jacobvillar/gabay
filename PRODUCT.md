@@ -6,8 +6,9 @@ leave, SSS/PhilHealth/Pag-IBIG contributions and claims). General chatbots get P
 and cite nothing. Gabay answers only from official handbooks and shows its sources.
 
 ## Corpus
-Public, non-copyrighted PH government handbooks (DOLE Workers' Statutory Monetary Benefits + SSS,
-PhilHealth, Pag-IBIG member guides). ~focused single domain; the user can judge correctness.
+Public PH government documents: the DOLE Handbook on Workers' Statutory Monetary Benefits, the
+SSS Citizens Charter, a PhilHealth Konsulta circular, and a Pag-IBIG programs briefer. One focused
+domain, so a user can judge correctness.
 
 ## Why it's a good RAG demo
 The base model is unreliable on PH-specific rules, so retrieval + citations visibly beat a raw LLM.
@@ -16,10 +17,3 @@ High stakes make faithfulness (answer only from docs, say when unknown) the cent
 ## Demo questions
 See `evals/datasets/demo-questions.json` — `good` ones showcase accurate cited answers;
 the probes test that Gabay refuses to invent figures (e.g. freelancer 13th-month, exact pension).
-
-## Reflection (fill after real usage)
-- Corpus chosen and why: _…_
-- Trickiest decision: _…_ (likely chunking vs. page-level citation granularity)
-- Does well: _…_
-- Does badly: _…_
-- Next week: _…_ (hybrid retrieval? per-agency filters? eval harness?)

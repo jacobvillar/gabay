@@ -11,9 +11,20 @@ const WINDOW_MS = 60 * 60 * 1000;
 const MAX_TRACKED_IPS = 10_000; // bounds memory; clearing only ever lets requests through
 const asked = new Map<string, number[]>(); // IP -> timestamps of questions in the last hour
 
-/** The visitor's IP. On Vercel the first x-forwarded-for entry is the client (Vercel sets it). */
+/**
+ * The visitor's IP. On Vercel the first x-forwarded-for entry is the client (Vercel sets it).
+ * IPv6 is keyed by its /64 network: one subscriber can rotate addresses within it.
+ */
 export function clientIp(req: Request): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  return ip.includes(":") ? expandV6(ip).slice(0, 4).join(":") + "::/64" : ip;
+}
+
+function expandV6(ip: string): string[] {
+  const [head, tail = ""] = ip.split("::");
+  const h = head ? head.split(":") : [];
+  const t = tail ? tail.split(":") : [];
+  return ip.includes("::") ? [...h, ...Array(8 - h.length - t.length).fill("0"), ...t] : h;
 }
 
 /** Sliding window: true (and counted) if this visitor asked fewer than the limit in the last hour. */

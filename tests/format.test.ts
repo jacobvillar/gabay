@@ -20,3 +20,7 @@ test("leaves Markdown links and [n] markers alone", () => {
   const md = "See [DOLE](https://www.dole.gov.ph) and [1].";
   assert.equal(cleanAnswer(md), md);
 });
+
+test("keeps Markdown hard line breaks (two trailing spaces)", () => {
+  assert.equal(cleanAnswer("Step one  \nStep two"), "Step one  \nStep two");
+});

@@ -1,31 +1,28 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Gabay · Reflection</title>
 <style>
-  @page { size: A4; margin: 13mm 15mm 12mm; }
+  @page { size: A4; margin: 15mm 17mm 14mm; }
   * { box-sizing: border-box; }
   body { font-family: "Hanken Grotesk", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #1f2329; line-height: 1.42; font-size: 9.3pt; margin: 0; }
-  header { border-bottom: 2px solid #111; padding-bottom: 7px; margin-bottom: 10px; }
-  h1 { font-size: 19pt; margin: 0; letter-spacing: -0.3px; color: #0b0d10; }
+    color: #1f2329; line-height: 1.5; font-size: 9.8pt; margin: 0; }
+  header { border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 12px; }
+  h1 { font-size: 20pt; margin: 0; letter-spacing: -0.3px; color: #0b0d10; }
   .tagline { font-size: 10.5pt; color: #3b4250; margin: 3px 0 6px; }
-  .meta { font-size: 8.6pt; color: #6b7280; }
-  .meta a { color: #4f46e5; text-decoration: none; }
-  h2 { font-size: 11pt; margin: 13px 0 5px; color: #0b0d10; letter-spacing: -0.1px; }
+  .meta { font-size: 8.8pt; color: #6b7280; }
+  h2 { font-size: 11.5pt; margin: 16px 0 6px; color: #0b0d10; letter-spacing: -0.1px; }
   h2 .n { color: #9aa1ad; font-weight: 500; margin-right: 6px; }
-  p { margin: 0 0 7px; }
-  table { border-collapse: collapse; width: 100%; margin: 6px 0 4px; font-size: 8.5pt; }
-  th, td { border-bottom: 1px solid #e3e6ea; padding: 4px 8px 4px 0; text-align: left; vertical-align: top; }
-  th { font-weight: 600; color: #4b5260; font-size: 8.2pt; border-bottom: 1.5px solid #c9ced6; }
+  p { margin: 0 0 8px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 4px; font-size: 8.9pt; }
+  th, td { border-bottom: 1px solid #e3e6ea; padding: 5px 10px 5px 0; text-align: left; vertical-align: top; }
+  th { font-weight: 600; color: #4b5260; font-size: 8.5pt; border-bottom: 1.5px solid #c9ced6; }
   td:first-child { font-weight: 600; color: #111; white-space: nowrap; }
-  .verdict { font-weight: 600; white-space: nowrap; }
-  .ok { color: #15803d; } .part { color: #b45309; } .gap { color: #b91c1c; }
-  ol, ul { margin: 2px 0 8px; padding-left: 18px; } li { margin: 3px 0; }
+  ol { margin: 2px 0 8px; padding-left: 18px; } li { margin: 4px 0; }
   strong { color: #0b0d10; }
   code { font-family: ui-monospace, Menlo, monospace; background: #f1f3f6; padding: 0 4px; border-radius: 3px; font-size: 0.88em; }
-  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; break-inside: avoid; }
-  .cite { color: #6b7280; font-size: 8.2pt; }
-  .refs { font-size: 8.5pt; color: #4b5260; }
+  .refs { font-size: 8.8pt; color: #4b5260; }
   a { color: #4f46e5; text-decoration: none; }
+  .page-break { break-before: page; }
+  .page-break h2:first-child { margin-top: 0; }
 </style></head><body>
 
 <header>
@@ -37,51 +34,47 @@
 </header>
 
 <h2><span class="n">1</span>Overview</h2>
-<p>Gabay answers questions about <strong>Philippine statutory worker benefits</strong> (13th-month pay, leave, SSS, PhilHealth, Pag-IBIG) strictly from official government handbooks, and shows the exact source pages under every answer. It runs on <strong>Next.js + the Vercel AI SDK</strong> with retrieval exposed as a tool call, <strong>Groq</strong> (open-weight GPT-OSS 120B) for generation, and <strong>Upstash Vector</strong> for dense search, deployed publicly on Vercel.</p>
+<p>Gabay answers questions about <strong>Philippine statutory worker benefits</strong> (13th-month pay, leave, SSS, PhilHealth, Pag-IBIG) only from official government handbooks, and every answer links to the exact page it came from. Built with <strong>Next.js and the Vercel AI SDK</strong>, retrieval as a <strong>tool call</strong>, <strong>Groq</strong> GPT-OSS 120B, and <strong>Upstash Vector</strong>.</p>
 
 <h2><span class="n">2</span>Key decisions</h2>
 <table>
-<tr><th style="width:15%">Decision</th><th style="width:38%">Choice</th><th>Why</th></tr>
-<tr><td>Corpus</td><td>DOLE handbook, SSS Citizens Charter, PhilHealth Konsulta circular, Pag-IBIG briefer (1,305 chunks)</td><td>Public-domain government works, legal to serve; a domain where base models get figures subtly wrong, so citations add real value</td></tr>
-<tr><td>Chunking</td><td>Per-page extraction with PDF ligature repair, then sentence/paragraph-aware packing to ~1,000 chars, 150 overlap</td><td>Per-page parsing keeps real <strong>page numbers</strong> for citations; boundaries fall on sentence ends so rules stay intact</td></tr>
-<tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Readable citations that open the PDF at the cited page; <code>agency</code> also drives retrieval</td></tr>
-<tr><td>Retrieval</td><td>Hybrid: dense + BM25 keyword, reciprocal rank fusion, optional per-agency boost; topK 8</td><td>Keyword catches exact terms dense misses; the boost counters the SSS-heavy corpus without ever hiding other handbooks</td></tr>
-<tr><td>Generation</td><td>Groq GPT-OSS 120B; falls back to 20B on rate limits; two-search budget per question</td><td>Free tier with tool calling; the budget guarantees every reply ends in a written answer</td></tr>
-<tr><td>Guardrails</td><td>Figures must appear in retrieved passages; decline off-topic; request validation; UI strips leaked LaTeX/HTML</td><td>A wrong peso figure is worse than no answer; the prompt alone proved insufficient, so the UI is a backstop</td></tr>
-<tr><td>Interface</td><td>Onyx-style sidebar: New chat, Search, Documents, Recents with Rename/Delete (browser-local)</td><td>No accounts or server storage. Deliberately no admin upload, which would let anyone poison a public index</td></tr>
+<tr><th style="width:13%">Decision</th><th style="width:40%">Choice</th><th>Why</th></tr>
+<tr><td>Corpus</td><td>Four official handbooks: DOLE, SSS, PhilHealth, Pag-IBIG (1,305 chunks)</td><td>Public documents I can serve and link to, in exactly the domain where general chatbots get figures subtly wrong</td></tr>
+<tr><td>Chunking</td><td>Per page, packed on sentence boundaries to ~1,000 chars with 150 overlap; PDF ligature repair</td><td>Citations carry real page numbers, and no rule is cut mid-sentence</td></tr>
+<tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Every citation opens the PDF at its page; <code>agency</code> steers retrieval</td></tr>
+<tr><td>Retrieval</td><td>Hybrid dense + BM25 keyword, reciprocal rank fusion, optional agency boost, top 8</td><td>Keyword search catches exact terms that embeddings blur; the boost favors one handbook without hiding the others</td></tr>
+<tr><td>Generation</td><td>GPT-OSS 120B on Groq, 20B fallback; at most two searches per question</td><td>Free tool calling; the cap forces a written answer instead of endless searching</td></tr>
+<tr><td>Guardrails</td><td>Every figure must appear in a retrieved passage; off-topic questions declined</td><td>A wrong peso amount is worse than “the handbook doesn’t say”</td></tr>
+<tr><td>Interface</td><td>No accounts and no upload; chats stay in the visitor’s browser</td><td>An open upload would let anyone poison a public index</td></tr>
 </table>
 
-<div class="cols">
-<div>
 <h2><span class="n">3</span>What it does well</h2>
-<p>Grounded, cited answers on PH-specific rules. “How is 13th-month pay computed?” triggers retrieval, answers from the DOLE handbook (1/12 of basic salary, with the correct exclusions), and each source chip opens the PDF at that page. When a figure is not in the handbooks, it says so instead of inventing one.</p>
-</div>
-<div>
+<p>It answers a benefit question with the rule, the computation, and a page citation the user can open. “How is 13th-month pay computed?” returns total basic salary ÷ 12, with the handbook’s exclusions, cited to DOLE pp. 50–54. When the handbooks are silent, it says so instead of guessing a figure.</p>
+
 <h2><span class="n">4</span>What it does badly</h2>
-<p>Retrieval balance: the SSS charter is 80% of the index and mostly procedure, so unscoped searches still lean SSS. The free tiers are the other weak spot: about 10–15 full answers a day before the smaller fallback model takes over, and it is noticeably less faithful.</p>
-</div>
-</div>
+<p><strong>The corpus is lopsided.</strong> The SSS charter is 1,052 of the 1,305 chunks and mostly procedure, so a question that doesn’t name an agency surfaces SSS passages first. The agency boost softens this; trimming the charter to its benefit sections is the real fix.</p>
+<p><strong>Quality drops silently under load.</strong> Groq’s free tier covers roughly 10–15 full answers a day. After that the smaller 20B model answers, it is less faithful, and the user cannot tell which model they got.</p>
 
+<div class="page-break">
 <h2><span class="n">5</span>The trickiest decision</h2>
-<p>Making retrieval <strong>trustworthy on high-stakes questions</strong>. Retrieval had to be a deliberate tool call rather than always-prepended context, with a tool description that makes the model reach for the handbooks on benefit questions but skip small talk, and a system prompt kept strict: answer only from retrieved passages and say plainly when they do not cover something. Balancing that faithfulness against still being helpful was the hardest part, and it surfaced again in the agency boost: a hard filter looked cleaner but let one wrong model guess hide the right handbook.</p>
+<p>How far to trust the model. Making retrieval a tool lets the model skip it for small talk, but also lets it skip or misdirect a search when it shouldn’t. So the prompt is strict (benefit questions must search, answers come only from passages, say what is missing) and retrieval forgives the model’s mistakes. When the model guessed the wrong agency for a service-incentive-leave question, a hard filter hid the DOLE answer entirely; the agency became a boost instead.</p>
 
-<h2 style="break-before: page; margin-top: 0"><span class="n">6</span>How I tested it</h2>
-<p>An end-to-end eval of 10 questions against production (all four agencies, Taglish, and an off-topic probe), reading every answer. It caught real defects: replies that ended empty because the model kept searching, PDF text broken 2,316 times (“bene fi t”), figures taken from model memory, an off-topic question answered, raw HTML and LaTeX in answers, an unanswerable suggested question, and a filter that hid the right handbook. Each fix was re-run against the same questions, and the seed now verifies itself with a known-answer probe (13th-month pay must return DOLE pp. 50–54).</p>
-
+<h2><span class="n">6</span>How I tested it</h2>
+<p>I ran 10 questions against production, covering all four agencies, Taglish, and an off-topic probe, and read every answer. That surfaced failures only visible end to end: answers that ended empty because the model kept searching, PDF text broken 2,316 times (“bene fi t”), figures from the model’s memory, an off-topic question answered, and the agency filter above. A code review before submission found one more that every fresh-chat test missed: in a multi-turn chat, follow-up questions could not search at all, because the search cap counted the whole conversation. Each fix was re-run on the same questions, and the seed verifies itself with a known-answer probe.</p>
 
 <h2><span class="n">7</span>What I’d do with another week</h2>
 <ol>
-  <li><strong>Automate the eval.</strong> Turn the 10-question run into a golden set with faithfulness and context-relevance scorers and an LLM judge calibrated on hand labels, run in CI on every prompt or retrieval change.</li>
-  <li><strong>Cross-encoder reranking</strong> over the fused dense + keyword results, the missing second stage.</li>
-  <li><strong>Exact-match response cache</strong> for first-turn questions (the suggested questions dominate traffic), keyed by normalized question + corpus and prompt version so a re-seed invalidates it. No semantic cache.</li>
-  <li><strong>Rebalance the corpus</strong> by trimming the SSS charter to its benefit sections.</li>
-  <li><strong>Inline citations</strong>: real [1]/[2] markers tied to the sources panel.</li>
+  <li><strong>Automated evals:</strong> turn the 10 questions, plus multi-turn cases, into a scored golden set (faithfulness, context relevance) that runs on every prompt or retrieval change.</li>
+  <li><strong>Rebalance the corpus:</strong> trim the SSS charter to its benefit sections.</li>
+  <li><strong>Reranking:</strong> a cross-encoder over the fused results.</li>
+  <li><strong>Cache the suggested questions:</strong> exact-match only, cleared on re-seed, to stretch the scarce daily quota.</li>
+  <li><strong>Inline citations:</strong> [1]/[2] markers tied to the sources panel.</li>
 </ol>
 
 <h2><span class="n">8</span>References</h2>
 <div class="refs">
-<p>Live app <a href="https://gabay-fint.vercel.app">gabay-fint.vercel.app</a> · repository <a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a> · corpus: DOLE, SSS, PhilHealth, Pag-IBIG official handbooks.</p>
-<p>Interface design language inspired by <a href="https://github.com/onyx-dot-app/onyx">Onyx</a>.</p>
+<p>Live app <a href="https://gabay-fint.vercel.app">gabay-fint.vercel.app</a> · repository <a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a> · corpus: DOLE, SSS, PhilHealth and Pag-IBIG official handbooks.</p>
+</div>
 </div>
 
 </body></html>

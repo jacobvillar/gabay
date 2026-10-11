@@ -24,7 +24,7 @@
 - **Request boundary** — `app/api/chat/route.ts`: request validation (400 on a malformed body or
   when the last message isn't the user's), streaming, tool wiring, `stepCountIs(4)`, server-side
   error logging. `lib/ai/history.ts` treats the browser's history as untrusted: user/assistant
-  text only, 20 messages, 4,000 chars each. `lib/ratelimit.ts` limits each IP to 20 questions an
+  text only, 20 messages, 4,000 chars each, 16,000 total. `lib/ratelimit.ts` limits each IP to 20 questions an
   hour (in-memory sliding window, per server instance).
 - **Model boundary** — `lib/ai/provider.ts`: lazy Groq (open-weight gpt-oss-120b) chat model that retries on gpt-oss-20b when rate-limited;
   embeddings handled by Upstash.

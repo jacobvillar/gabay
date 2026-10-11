@@ -29,3 +29,7 @@ test("the window slides: questions free up an hour after they were asked", () =>
   assert.equal(allowRequest(a, t + HOUR - 1), false);
   assert.equal(allowRequest(a, t + HOUR), true);
 });
+
+test("groups IPv6 visitors by /64, so rotating addresses in one network doesn't reset the limit", () => {
+  assert.equal(clientIp(req({ "x-forwarded-for": "2001:db8:1:2:aaaa::1" })), clientIp(req({ "x-forwarded-for": "2001:db8:1:2:bbbb::9" })));
+});

@@ -8,7 +8,6 @@ Pag-IBIG — with streaming answers and cited sources.**
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v5-black)](https://sdk.vercel.ai)
 
-> A public, domain-specific RAG assistant built for the "Ship Your Own RAG" project.
 > **Live:** [gabay-fint.vercel.app](https://gabay-fint.vercel.app)
 
 ## Overview
@@ -45,7 +44,7 @@ renders the documents and pages it used.
 - **Bounded tool loop.** At most two searches per question, enforced inside the tool, so the model
   always ends with a written answer. Follow-up questions get their own two searches.
 - **Untrusted history.** `/api/chat` keeps only user and assistant text from the browser (no
-  client system messages or tool outputs), at most 20 messages of 4,000 characters each.
+  client system messages or tool outputs), at most 20 messages of 4,000 characters each and 16,000 in total.
 - **Per-visitor limit.** 20 questions an hour per IP, so one person or script can't spend the
   shared Groq daily quota. Counted in server memory: approximate, but free and setup-free.
 

@@ -1,9 +1,9 @@
 # DESIGN.md — Gabay UI
 
-Onyx-inspired design language: dark, monochrome, one type family, a collapsible left rail.
+Dark, monochrome, one type family, a collapsible left rail.
 
 ## Tokens (`app/globals.css`)
-Dark, monochrome, Onyx-matched (sampled from cloud.onyx.app). One family: Hanken Grotesk.
+One family: Hanken Grotesk.
 | Token | Value | Use |
 | --- | --- | --- |
 | `--bg` | `#19191e` | chat canvas |
@@ -16,20 +16,16 @@ Dark, monochrome, Onyx-matched (sampled from cloud.onyx.app). One family: Hanken
 | `--accent` / `--accent-fg` | `#fafafa` / `#19191e` | primary (send) button |
 
 ## Anatomy
-- **Sidebar** (`components/App.tsx`, Onyx-style): logo + wordmark with a collapse toggle; collapses
+- **Sidebar** (`components/App.tsx`): logo + wordmark with a collapse toggle; collapses
   to a 64px icon rail (logo becomes the expand button; icon buttons get `aria-label` + tooltip).
   Items: New chat · Search chats (filters Recents; Esc closes) · Documents (opens each PDF) ·
   Recents, each with a "…" menu (Rename inline, Delete with a confirm click). Collapsed state + last 20 chats persist in localStorage. 200ms width transition, off
-  for reduced motion and on first paint. One icon family (Lucide geometry, 2px stroke, inline).
+  for reduced motion and on first paint. One icon family (2px stroke, inline SVG).
   Hidden under `md`.
 - **Empty state** (`EmptyState.tsx`): centered greeting + 4 suggested-prompt chips.
 - **Messages** (`Message.tsx`): user = right-aligned bubble; assistant = avatar + prose +
-  `Sources`. Inline `[n]` markers map to the sources list.
+  `Sources`.
 - **Sources** (`Sources.tsx`): `[n] agency · p.N` chips, one per document page, title on hover;
   each opens the PDF at that page (`/docs/<file>#page=N`).
 - **Composer** (`Chat.tsx`): rounded auto-grow textarea, Enter to send, Shift+Enter for newline,
   disabled while streaming.
-
-## Fidelity note
-This matches Onyx's *design language*, not a pixel copy of a specific screen. To tighten to 1:1,
-drop screenshots of Onyx's chat view or reference the `onyx-dot-app/onyx` theme and adjust tokens.

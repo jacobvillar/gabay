@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Gabay — Onyx-matched monochrome dark theme.
-   Tokens sampled from cloud.onyx.app: bg #19191e, text #fafafa, Hanken Grotesk. */
+/* Gabay: monochrome dark theme, Hanken Grotesk. Tokens documented in DESIGN.md. */
 :root {
   --bg: #19191e;          /* main canvas */
   --sidebar: #1d1d23;     /* left rail */

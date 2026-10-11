@@ -73,7 +73,7 @@ export async function retrieve(query: string, topK = config.topK, agency?: strin
     searches.push(denseSearch(query, topK, agency), Promise.resolve(keywordSearch(query, topK, agency)));
   }
   const lists = await Promise.all(searches);
-  if (lists[0].length === 0) logger.warn("vector search empty; keyword results only", { query, agency });
+  if (lists[0].length === 0) logger.warn("vector search empty; keyword results only", { agency });
 
   return fuseRanked(lists, topK).map((m, i) => ({
     id: i + 1,

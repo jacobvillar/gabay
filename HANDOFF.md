@@ -7,7 +7,7 @@
 Deployed and working at https://gabay-fint.vercel.app. Recent work: a self-verifying seed (ingestion logic in
 `lib/rag/ingestion.ts`), request validation and error
 surfacing, PDF-page citations, hybrid dense + keyword (BM25) retrieval with a per-agency boost, a fallback chat model, a
-two-search tool budget, PDF ligature repair, and an Onyx-style sidebar (collapsible rail, Search
+two-search tool budget, PDF ligature repair, and a sidebar (collapsible rail, Search
 chats, Documents, Recents with Rename/Delete).
 
 **Before relying on the live app:** confirm the Upstash index holds 1,305 vectors (`npm run seed`
@@ -20,8 +20,7 @@ A public, domain-specific RAG assistant answering **Philippine statutory worker-
 (DOLE / SSS / PhilHealth / Pag-IBIG) strictly from official handbooks, with cited sources.
 
 - **Live:** https://gabay-fint.vercel.app  (NOT gabay.vercel.app — that subdomain is an unrelated 2023 app we do not own)
-- **Repo:** https://github.com/jacobvillar/gabay  (GitHub account: `jacobvillar`; a `jacob-villar`
-  duplicate was created then removed — ignore it)
+- **Repo:** https://github.com/jacobvillar/gabay
 - **Vercel:** project `gabay`, team `jacob-villar1`, auto-deploys on push to `main`
 - **Local:** `/Users/jacobvillar/Developer/jacobvillar/gabay` (single repo, branch `main`)
 - **Start from the latest `main`** (`git log -1`)
@@ -52,7 +51,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 | Docs | `docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `DESIGN.md`, `PRODUCT.md` |
 | Deliverables | `deliverables/` (reflection md+pdf, submission.md, demo-questions.md, zip) |
 
-## Sidebar (Onyx-style, shipped 2026-10-11)
+## Sidebar
 
 - **New chat** → fresh conversation (`key={activeId}` remounts `useChat`).
 - **Collapse** → toggle collapses to a 64px icon rail (logo expands it); state persists.
@@ -77,7 +76,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
   user message, `searchesThisTurn`), then returns "answer now"; `MAX_STEPS` is 4.
   `toolChoice: "none"` and `activeTools: []` both fail on Groq for gpt-oss.
 - **Untrusted history.** `lib/ai/history.ts` keeps only user/assistant text parts (20 messages,
-  4,000 chars each) and the route requires the last one to be the user's. Old tool outputs are
+  4,000 chars each, 16,000 in total) and the route requires the last one to be the user's. Old tool outputs are
   dropped, so a follow-up searches again.
 - **Rate limit.** `lib/ratelimit.ts`: 20 questions/hour per IP (sliding window), 429 with a
   message the chat shows. In-memory, so each Vercel instance counts separately and a restart
@@ -129,9 +128,3 @@ Submission accepts a URL **or** a pdf/zip upload. Mapping lives in `deliverables
   renders Markdown (sources show in the panel). Don't re-introduce raw LaTeX/markers.
 - **Model name:** `openai/gpt-oss-120b` is an *open-weight* model on Groq (not the OpenAI API).
   `llama-3.3-70b-versatile` was retired — don't revert to it.
-
-## Cost note
-
-The prior session ran long on paid browser automation. Prefer **`curl` + code inspection** over
-browser-driving for verification. Only open a browser for the incognito live-URL check, and do it
-once.

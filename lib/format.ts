@@ -17,6 +17,6 @@ export function cleanAnswer(text: string): string {
       .replace(/\\[()]/g, "")
       .replace(/^\s*\\?\[\s+(.+?)\s+\\?\]\s*$/gm, "$1") // display-math wrapper "[ … ]"
       .replace(/ +([.,])/g, "$1")
-      .replace(/(\S) {2,}/g, "$1 ") // inner runs only; leading indentation nests lists
+      .replace(/(\S) {2,}(?=\S)/g, "$1 ") // between words only: keeps list indentation and hard breaks
   );
 }

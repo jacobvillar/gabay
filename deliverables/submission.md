@@ -28,7 +28,7 @@
 
 ## Beyond the checklist
 
-- **Onyx-style sidebar** (`components/App.tsx`): New chat, collapsible Documents, and Recents
+- **Sidebar** (`components/App.tsx`): New chat, collapsible Documents, and Recents
   saved in the visitor's browser (no accounts, no server storage).
 - **No public admin upload, on purpose:** it would let anyone poison the index. New documents go
   through `npm run seed`.
@@ -40,7 +40,7 @@
   reply ends with a written answer.
 - **Chat management:** Search chats, plus Rename and Delete on each recent chat.
 - **Hardened API:** `/api/chat` rejects malformed requests with 400 and treats the browser's
-  history as untrusted (user/assistant text only, 20 messages, 4,000 characters each), so a client
+  history as untrusted (user/assistant text only, 20 messages, 4,000 characters each, 16,000 total), so a client
   can't replace the system prompt or plant fake passages; each visitor gets 20 questions an hour;
   the UI shows model errors with a retry.
 - **Verified ingestion:** `npm run seed` checks the stored count and a known-answer probe

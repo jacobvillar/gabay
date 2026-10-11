@@ -45,7 +45,7 @@ function titleOf(messages: UIMessage[]): string {
 
 const newId = () => crypto.randomUUID();
 
-/* One icon family: 24px grid, 2px stroke, round caps (Lucide geometry, inlined — no dependency). */
+/* One icon family: 24px grid, 2px stroke, round caps, inlined (no icon dependency). */
 function Icon({ d, size = 16 }: { d: string[]; size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">

@@ -22,4 +22,4 @@ boundary · `lib/ai/tools` = tool registry · `lib/rag/*` = ingestion + retrieva
 `npm run typecheck` · `npm test` · `npm run build` (all must pass, build without keys).
 
 ## Not now (blueprint `[+]`, add when the product needs it)
-workers/queues, agents, DB migrations, persistence, caching, auth/rate-limiting.
+workers/queues, agents, DB migrations, persistence, caching, auth.

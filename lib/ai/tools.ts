@@ -42,7 +42,7 @@ export const searchKnowledgeBase = tool({
       return { sources: [], note: "Search limit reached. Do not search again. Answer now from the passages already returned; say plainly what they do not cover." };
     }
     const sources = await retrieve(query, undefined, agency);
-    logger.info("retrieval", { query, agency, hits: sources.length, call: prior + 1 });
+    logger.info("retrieval", { queryChars: query.length, agency, hits: sources.length, call: prior + 1 }); // no query text: users type personal details
     return prior === 1
       ? { sources, note: "This was your last search. Answer now from all passages returned so far." }
       : { sources };
