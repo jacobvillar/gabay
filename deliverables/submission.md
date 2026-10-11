@@ -6,7 +6,7 @@
 
 | Item | Link / File |
 | --- | --- |
-| Public app URL | https://gabay.vercel.app |
+| Public app URL | https://gabay-fint.vercel.app |
 | GitHub repository | https://github.com/jacobvillar/gabay |
 | One-page reflection | [reflection.md](reflection.md) (export to PDF for upload) |
 | Demo questions | [demo-questions.md](demo-questions.md) |
@@ -15,7 +15,7 @@
 
 | Requirement (final checklist) | Where / How |
 | --- | --- |
-| Deployed publicly on Vercel | https://gabay.vercel.app |
+| Deployed publicly on Vercel | https://gabay-fint.vercel.app |
 | Streams answers via the Vercel AI SDK | `app/api/chat/route.ts` → `streamText(...).toUIMessageStreamResponse()` |
 | RAG implemented as a tool call | `lib/ai/tools.ts` `searchKnowledgeBase`; model calls it (not always-prepended) |
 | Sources visible and readable under answers | `components/Sources.tsx` (doc · agency · page, linked) |

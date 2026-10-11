@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Gabay",
   description:
     "Ask about your Philippine statutory worker benefits — 13th-month pay, leave, SSS, " +
-    "PhilHealth, and Pag-IBIG — answered from official DOLE handbooks, with sources.",
+    "PhilHealth, and Pag-IBIG — answered from official DOLE, SSS, PhilHealth & Pag-IBIG handbooks, with sources.",
   openGraph: {
     title: "Gabay — Philippine Worker Benefits Assistant",
     description: "Grounded answers about Filipino workers' statutory benefits, with cited sources.",

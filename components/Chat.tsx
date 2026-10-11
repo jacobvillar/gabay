@@ -15,7 +15,7 @@ function SendIcon() {
 }
 
 export function Chat() {
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error, regenerate } = useChat();
   const [input, setInput] = useState("");
   const busy = status === "submitted" || status === "streaming";
 
@@ -36,6 +36,7 @@ export function Chat() {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(input); } }}
         rows={1}
+        aria-label="Ask a question"
         placeholder="Ask about pay, leave, SSS, PhilHealth, Pag-IBIG…"
         className="max-h-44 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm text-[var(--fg)] outline-none placeholder:text-[var(--fg-faint)]"
       />
@@ -77,6 +78,12 @@ export function Chat() {
           {messages.map((m) => (
             <Message key={m.id} message={m} />
           ))}
+          {error && (
+            <p role="alert" className="text-sm text-[var(--fg-muted)]">
+              Something went wrong reaching the model.{" "}
+              <button onClick={() => regenerate()} className="underline">Try again</button>
+            </p>
+          )}
         </div>
       </div>
       <div className="px-4 pb-5">

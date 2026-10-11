@@ -18,12 +18,12 @@ to verify and harden for a 100/100, not to rebuild.
 A public, domain-specific RAG assistant answering **Philippine statutory worker-benefit** questions
 (DOLE / SSS / PhilHealth / Pag-IBIG) strictly from official handbooks, with cited sources.
 
-- **Live:** https://gabay.vercel.app  (alias: gabay-fint.vercel.app)
+- **Live:** https://gabay-fint.vercel.app  (NOT gabay.vercel.app — that subdomain is an unrelated 2023 app we do not own)
 - **Repo:** https://github.com/jacobvillar/gabay  (GitHub account: `jacobvillar`; a `jacob-villar`
   duplicate was created then removed — ignore it)
 - **Vercel:** project `gabay`, team `jacob-villar1`, auto-deploys on push to `main`
 - **Local:** `/Users/jacobvillar/Developer/jacobvillar/gabay` (single repo, branch `main`)
-- **Latest commit at handoff:** `2b15618`
+- **Start from the latest `main`** (`git log -1`)
 
 ## Stack
 
@@ -56,8 +56,8 @@ Three server-only vars, set in `.env.local` (local, gitignored) **and** Vercel P
 
 ## Corpus / index state (already seeded)
 
-Upstash index holds **1,197 chunks**: DOLE 193 · PhilHealth 33 · Pag-IBIG 14 · **SSS 957**.
-Re-seed only if PDFs change: `npm run seed` (reads `.env.local`).
+Upstash index holds **1,313 chunks**: DOLE 203 · PhilHealth 35 · Pag-IBIG 15 · **SSS 1060** (structure-aware).
+Re-seed only if PDFs change: `npm run seed` (reads `.env.local`; resets the index first).
 
 ## Verify commands
 
@@ -65,7 +65,7 @@ Re-seed only if PDFs change: `npm run seed` (reads `.env.local`).
 cd ~/Developer/jacobvillar/gabay
 npm run typecheck && npm test && npm run build     # all must pass (build works with NO env)
 # Production smoke test (streaming + tool call + no error):
-curl -s -N https://gabay.vercel.app/api/chat -H 'content-type: application/json' \
+curl -s -N https://gabay-fint.vercel.app/api/chat -H 'content-type: application/json' \
   -d '{"messages":[{"id":"1","role":"user","parts":[{"type":"text","text":"How is 13th month pay computed?"}]}]}'
 ```
 Expect `data:` events including `tool-output-available` and streamed `text-delta`, no `error`.
@@ -73,7 +73,7 @@ Expect `data:` events including `tool-output-available` and streamed `text-delta
 ## Rubric to audit (target: 100/100)
 
 Final checklist — verify each:
-- [ ] Deployed publicly on Vercel (gabay.vercel.app reachable in incognito)
+- [ ] Deployed publicly on Vercel (gabay-fint.vercel.app reachable in incognito)
 - [ ] Streams answers via Vercel AI SDK
 - [ ] RAG implemented as a **tool call** (not always-prepended)
 - [ ] Sources visible + readable under answers

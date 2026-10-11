@@ -4,7 +4,7 @@ title: "Gabay — Shipping a Public RAG Product"
 timestamp: 2026-10-11
 tags: [rag, nextjs, vercel-ai-sdk, groq, upstash, retrieval, philippines, worker-benefits]
 description: "One-page reflection on building and deploying Gabay, a public RAG assistant over Philippine statutory worker-benefit handbooks."
-live: https://gabay.vercel.app
+live: https://gabay-fint.vercel.app
 repo: https://github.com/jacobvillar/gabay
 ---
 
@@ -17,7 +17,7 @@ statutory worker benefits** — 13th-month pay, leave, SSS, PhilHealth, and Pag-
 official government handbooks, with the source passages shown under every answer. It is built with
 **Next.js + the Vercel AI SDK** (streaming chat, retrieval exposed as a tool call), **Groq**
 (open-weight GPT-OSS 120B) for generation, and **Upstash Vector** (built-in embedding model) for
-retrieval. It runs publicly on Vercel at [gabay.vercel.app](https://gabay.vercel.app).
+retrieval. It runs publicly on Vercel at [gabay-fint.vercel.app](https://gabay-fint.vercel.app).
 
 ## Corpus and why
 
@@ -26,7 +26,7 @@ retrieval. It runs publicly on Vercel at [gabay.vercel.app](https://gabay.vercel
 | Corpus | DOLE Handbook, SSS Citizens Charter, PhilHealth Konsulta circular, Pag-IBIG briefer | Public-domain PH government works — legal to serve publicly; a high-value domain where base LLMs are unreliable, so retrieval + citations visibly add value |
 | Generation | Groq, open-weight GPT-OSS 120B | Free tier, no OpenAI key, supports tool calling, deploys on Vercel |
 | Embeddings | Upstash built-in model (text in, vectors server-side) | Removes the embedding API key entirely; one fewer secret |
-| Chunking | Per-page extraction → ~1000-char windows, 150 overlap | Per-page parsing preserves real **page numbers** for citations |
+| Chunking | Per-page extraction → sentence/paragraph-aware packing to ~1000 chars, 150 overlap | Per-page parsing preserves real **page numbers**; sentence-aware packing keeps rules intact |
 | Metadata | `document_title`, `agency`, `page`, `source_url` | Makes citations readable and disambiguates across four agencies |
 
 ## The trickiest decision
@@ -41,9 +41,7 @@ and renders the exact source pages — something a raw model gets subtly wrong w
 
 ## What it does badly
 
-Retrieval balance and chunking. Because the SSS charter dominates the index, some non-SSS queries
-can surface less-relevant SSS chunks; character-based chunking occasionally splits a rule
-mid-sentence. These are quality, not correctness, issues — but they are real.
+Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, so per-agency balance is the main remaining lever. These are quality, not correctness, issues — but they are real.
 
 ## What I'd do with another week
 
@@ -55,6 +53,6 @@ mid-sentence. These are quality, not correctness, issues — but they are real.
 
 ## References
 
-- Live app: <https://gabay.vercel.app> · Repository: <https://github.com/jacobvillar/gabay>
+- Live app: <https://gabay-fint.vercel.app> · Repository: <https://github.com/jacobvillar/gabay>
 - Corpus: DOLE, SSS, PhilHealth, Pag-IBIG official handbooks
 - Design language inspired by [Onyx](https://github.com/onyx-dot-app/onyx)

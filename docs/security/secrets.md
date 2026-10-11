@@ -13,4 +13,4 @@
 - In production, set env vars in Vercel, not in the repo.
 - The Upstash token is read-write (needed for seeding). If you want the deployed app to be
   read-only, create a read-only token for production and keep the read-write one for seeding.
-- No OpenAI key is used: chat runs on Groq (open Llama), embeddings run inside Upstash.
+- No OpenAI key is used: chat runs on Groq (open-weight gpt-oss-120b), embeddings run inside Upstash.

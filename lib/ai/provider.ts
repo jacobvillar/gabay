@@ -1,6 +1,6 @@
 /**
  * Model boundary — all LLM access goes through here.
- * Chat uses Groq (open-weight Llama). Embeddings are handled by Upstash, not here.
+ * Chat uses Groq (open-weight gpt-oss-120b). Embeddings are handled by Upstash, not here.
  */
 import { createGroq } from "@ai-sdk/groq";
 import { config } from "@/lib/config";

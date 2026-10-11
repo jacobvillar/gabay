@@ -7,7 +7,7 @@ npm install
 
 ## 2. Environment
 Copy `.env.example` to `.env.local` and fill in:
-- `GROQ_API_KEY` — free key from https://console.groq.com (open-weight Llama chat).
+- `GROQ_API_KEY` — free key from https://console.groq.com (open-weight gpt-oss-120b chat).
 - `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN` — create an Upstash Vector index
   **with a built-in embedding model** (e.g. `mixedbread-ai/mxbai-embed-large-v1` or
   `BAAI/bge-base-en-v1.5`). Upstash embeds text server-side, so no embedding API key is needed.

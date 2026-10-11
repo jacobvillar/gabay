@@ -20,7 +20,7 @@
 </style></head><body>
 <h1>Gabay — Shipping a Public RAG Product</h1>
 <p class="sub">One-page reflection · Graded Mini Project 14.3 · 2026-10-11 ·
-<a href="https://gabay.vercel.app">gabay.vercel.app</a> ·
+<a href="https://gabay-fint.vercel.app">gabay-fint.vercel.app</a> ·
 <a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a></p>
 
 <h2>Overview</h2>
@@ -37,7 +37,7 @@ with <strong>Next.js + the Vercel AI SDK</strong> (streaming chat, retrieval exp
 <tr><td>Corpus</td><td>DOLE Handbook, SSS Citizens Charter, PhilHealth Konsulta circular, Pag-IBIG briefer</td><td>Public-domain PH government works — legal to serve publicly; a domain where base LLMs are unreliable, so retrieval + citations add real value</td></tr>
 <tr><td>Generation</td><td>Groq — open-weight GPT-OSS 120B</td><td>Free tier, no OpenAI key, supports tool calling, deploys on Vercel</td></tr>
 <tr><td>Embeddings</td><td>Upstash built-in model</td><td>Removes the embedding API key entirely — one fewer secret</td></tr>
-<tr><td>Chunking</td><td>Per-page → ~1000-char windows, 150 overlap</td><td>Per-page parsing preserves real <strong>page numbers</strong> for citations</td></tr>
+<tr><td>Chunking</td><td>Per-page → sentence/paragraph-aware packing to ~1000 chars, 150 overlap</td><td>Per-page parsing preserves real <strong>page numbers</strong>; sentence-aware packing keeps rules intact</td></tr>
 <tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Readable citations that disambiguate across four agencies</td></tr>
 </table>
 
@@ -50,9 +50,7 @@ retrieval tool, answers from the DOLE handbook (1/12 of basic salary, with the c
 and renders the exact source pages — something a raw model gets subtly wrong with no citations.</p>
 
 <h2>What it does badly</h2>
-<p>Retrieval balance and chunking. Because the SSS charter dominates the index, some non-SSS queries
-can surface less-relevant SSS chunks; character-based chunking occasionally splits a rule
-mid-sentence. These are quality, not correctness, issues — but they are real.</p>
+<p>Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, so per-agency balance is the main remaining lever. These are quality, not correctness, issues — but they are real.</p>
 
 <h2>What I'd do with another week</h2>
 <ol>

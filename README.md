@@ -4,12 +4,12 @@
 Pag-IBIG — with streaming answers and cited sources.**
 
 [![CI](https://github.com/jacobvillar/gabay/actions/workflows/ci.yml/badge.svg)](https://github.com/jacobvillar/gabay/actions/workflows/ci.yml)
-[![Live](https://img.shields.io/badge/live-gabay.vercel.app-111)](https://gabay.vercel.app)
+[![Live](https://img.shields.io/badge/live-gabay-fint.vercel.app-111)](https://gabay-fint.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v5-black)](https://sdk.vercel.ai)
 
 > Week 14.3 "Ship Your Own RAG" graded mini-project — turning a workshop RAG bot into a public,
-> domain-specific product. **Live:** [gabay.vercel.app](https://gabay.vercel.app)
+> domain-specific product. **Live:** [gabay-fint.vercel.app](https://gabay-fint.vercel.app)
 
 ## Overview
 
@@ -68,7 +68,7 @@ Full walkthrough: [`docs/development/setup.md`](docs/development/setup.md).
 ## Deploy (Vercel)
 
 Push to GitHub → import the repo in Vercel → add the three env vars → deploy. The app is already
-live at [gabay.vercel.app](https://gabay.vercel.app). See
+live at [gabay-fint.vercel.app](https://gabay-fint.vercel.app). See
 [`docs/development/setup.md`](docs/development/setup.md) for details.
 
 ## Tech stack

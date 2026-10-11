@@ -60,7 +60,10 @@ async function pagesOf(filePath: string): Promise<string[]> {
   for (let p = 1; p <= doc.numPages; p++) {
     const page = await doc.getPage(p);
     const content = await page.getTextContent();
-    pages.push((content.items as Array<{ str?: string }>).map((i) => i.str ?? "").join(" "));
+    const items = content.items as Array<{ str?: string; hasEOL?: boolean }>;
+    let pageText = "";
+    for (const it of items) pageText += (it.str ?? "") + (it.hasEOL ? "\n" : " ");
+    pages.push(pageText);
   }
   return pages;
 }
@@ -76,6 +79,8 @@ async function main() {
   }
 
   const index = new Index({ url: config.upstashUrl(), token: config.upstashToken() });
+  await index.reset();
+  console.log("  (index reset)");
   let id = 0;
   let total = 0;
 

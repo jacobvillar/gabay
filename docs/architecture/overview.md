@@ -18,7 +18,7 @@
 
 ## Pieces
 - **Request boundary** — `app/api/chat/route.ts`: streaming, tool wiring, `stepCountIs(3)`.
-- **Model boundary** — `lib/ai/provider.ts`: lazy Groq (Llama) chat model; embeddings handled by Upstash.
+- **Model boundary** — `lib/ai/provider.ts`: lazy Groq (open-weight gpt-oss-120b) chat model; embeddings handled by Upstash.
 - **Tool** — `lib/ai/tools.ts`: `searchKnowledgeBase`, the only way facts enter an answer.
 - **Retrieval** — `lib/rag/retrieval.ts`: embed → Upstash query → typed `Source[]`.
 - **Ingestion** — `scripts/seed.ts` + `lib/rag/ingestion.ts`: per-page parse → chunk → embed →
