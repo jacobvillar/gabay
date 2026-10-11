@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Gabay — Onyx-inspired design tokens.
+   Dark left sidebar, light chat canvas, indigo accent. */
+:root {
+  --sidebar: #0d0f13;
+  --sidebar-fg: #e6e8ec;
+  --sidebar-muted: #8a909b;
+  --sidebar-hover: #1a1d24;
+  --canvas: #ffffff;
+  --canvas-muted: #f5f6f8;
+  --fg: #1a1c20;
+  --fg-muted: #5b6270;
+  --border: #e5e7eb;
+  --accent: #6d4aff;
+  --accent-fg: #ffffff;
+  --accent-soft: #efeaff;
+  --user-bubble: #f1f2f5;
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-fg: var(--sidebar-fg);
+  --color-accent: var(--accent);
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--canvas);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* thin scrollbars, Onyx-like */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }

@@ -1,0 +1,35 @@
+{
+  "name": "gabay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gabay — a RAG assistant for Philippine statutory worker benefits (DOLE, SSS, PhilHealth, Pag-IBIG).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx scripts/seed.ts",
+    "test": "tsx --test tests/chunk.test.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/groq": "^2.0.0",
+    "@ai-sdk/react": "^2.0.0",
+    "@upstash/vector": "^1.2.0",
+    "ai": "^5.0.0",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.6",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "pdfjs-dist": "^4.10.38",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
