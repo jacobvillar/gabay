@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>Gabay — Reflection</title>
+<style>
+  @page { size: A4; margin: 11mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Hanken Grotesk", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1c20; line-height: 1.36; font-size: 9.3pt; margin: 0; }
+  h1 { font-size: 15pt; margin: 0 0 2pt; letter-spacing: -0.2px; }
+  .sub { color: #5b6270; font-size: 8.3pt; margin: 0 0 9px; }
+  h2 { font-size: 10.3pt; margin: 9px 0 4px; color: #111; border-bottom: 1px solid #e5e7eb; padding-bottom: 2px; }
+  p { margin: 3px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 4px 0; font-size: 8.2pt; }
+  th, td { border: 1px solid #d9dce1; padding: 3px 6px; text-align: left; vertical-align: top; }
+  th { background: #f5f6f8; font-weight: 600; }
+  ol { margin: 3px 0 3px 17px; } li { margin: 1px 0; }
+  strong { color: #111; }
+  a { color: #4f46e5; text-decoration: none; }
+  .meta { font-size: 8.5pt; color: #6b7280; }
+  code { background: #f1f2f5; padding: 0 3px; border-radius: 3px; font-size: 9pt; }
+</style></head><body>
+<h1>Gabay — Shipping a Public RAG Product</h1>
+<p class="sub">One-page reflection · Graded Mini Project 14.3 · 2026-10-11 ·
+<a href="https://gabay.vercel.app">gabay.vercel.app</a> ·
+<a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a></p>
+
+<h2>Overview</h2>
+<p>Gabay is a public, domain-specific RAG assistant that answers questions about <strong>Philippine
+statutory worker benefits</strong> — 13th-month pay, leave, SSS, PhilHealth, and Pag-IBIG — strictly
+from official government handbooks, with the source passages shown under every answer. It is built
+with <strong>Next.js + the Vercel AI SDK</strong> (streaming chat, retrieval exposed as a tool call),
+<strong>Groq</strong> (open-weight GPT-OSS 120B) for generation, and <strong>Upstash Vector</strong>
+(built-in embedding model) for retrieval, deployed publicly on Vercel.</p>
+
+<h2>Corpus and key decisions</h2>
+<table>
+<tr><th>Decision</th><th>Choice</th><th>Why</th></tr>
+<tr><td>Corpus</td><td>DOLE Handbook, SSS Citizens Charter, PhilHealth Konsulta circular, Pag-IBIG briefer</td><td>Public-domain PH government works — legal to serve publicly; a domain where base LLMs are unreliable, so retrieval + citations add real value</td></tr>
+<tr><td>Generation</td><td>Groq — open-weight GPT-OSS 120B</td><td>Free tier, no OpenAI key, supports tool calling, deploys on Vercel</td></tr>
+<tr><td>Embeddings</td><td>Upstash built-in model</td><td>Removes the embedding API key entirely — one fewer secret</td></tr>
+<tr><td>Chunking</td><td>Per-page → ~1000-char windows, 150 overlap</td><td>Per-page parsing preserves real <strong>page numbers</strong> for citations</td></tr>
+<tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Readable citations that disambiguate across four agencies</td></tr>
+</table>
+
+<h2>The trickiest decision</h2>
+<p>Making retrieval <strong>trustworthy on high-stakes questions</strong>. A wrong peso figure or rule is worse than no answer, so retrieval had to be a deliberate <strong>tool call</strong> (not always-prepended context), with a tool description tuned so the model reaches for it on benefit questions but skips small talk, and a system prompt kept strict: answer only from retrieved passages, and say plainly when the handbooks do not cover something. Balancing that faithfulness against still being genuinely helpful was the hardest part to get right.</p>
+
+<h2>What it does well</h2>
+<p>Grounded, cited answers on PH-specific rules. "How is 13th-month pay computed?" triggers the
+retrieval tool, answers from the DOLE handbook (1/12 of basic salary, with the correct exclusions),
+and renders the exact source pages — something a raw model gets subtly wrong with no citations.</p>
+
+<h2>What it does badly</h2>
+<p>Retrieval balance and chunking. Because the SSS charter dominates the index, some non-SSS queries
+can surface less-relevant SSS chunks; character-based chunking occasionally splits a rule
+mid-sentence. These are quality, not correctness, issues — but they are real.</p>
+
+<h2>What I'd do with another week</h2>
+<ol>
+<li><strong>Rebalance the corpus</strong> — trim the SSS charter to its benefits sections or add per-agency retrieval filters.</li>
+<li><strong>Hybrid retrieval + reranking</strong> — combine dense search with keyword matching and a reranker.</li>
+<li><strong>Eval harness</strong> — score faithfulness and context-relevance on the demo-question set.</li>
+<li><strong>Inline citation mapping</strong> — true [1]/[2] markers tied to the sources panel.</li>
+</ol>
+</body></html>

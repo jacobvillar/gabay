@@ -20,7 +20,7 @@ export const config = {
   // Tunables (product decisions, not defaults to ignore).
   // Open-weight GPT-OSS on Groq; supports tool calling, free tier.
   chatModel: "openai/gpt-oss-120b",
-  topK: 5,
+  topK: 8,
   // Embeddings are done server-side by Upstash (index created with a built-in model),
   // so there is no embedding model or key here.
 } as const;
