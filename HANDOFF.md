@@ -28,7 +28,7 @@ A public, domain-specific RAG assistant answering **Philippine statutory worker-
 ## Stack
 
 Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Groq** chat model
-`openai/gpt-oss-120b` (open-weight, free tier) · **Upstash Vector** with a built-in embedding model
+`openai/gpt-oss-120b` (open-weight, free tier) · **Upstash Vector** with its built-in `text-embedding-3-small` model
 (text in, vectors server-side — no embedding key) · TypeScript · Tailwind v4 · Hanken Grotesk.
 **No OpenAI key. No LangChain** (intentional — brief mandates the Vercel AI SDK).
 

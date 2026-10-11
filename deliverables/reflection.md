@@ -2,7 +2,7 @@
 type: Reflection
 title: "Gabay: Shipping a Public RAG Product"
 timestamp: 2026-10-11
-tags: [rag, nextjs, vercel-ai-sdk, groq, upstash, hybrid-retrieval, philippines, worker-benefits]
+tags: [rag, nextjs, vercel-ai-sdk, groq, upstash-vector, hybrid-retrieval, philippines, worker-benefits]
 description: "Reflection on building and testing Gabay, a public RAG assistant over Philippine statutory worker-benefit handbooks."
 live: https://gabay-fint.vercel.app
 repo: https://github.com/jacobvillar/gabay
@@ -23,6 +23,7 @@ Gabay answers questions about **Philippine statutory worker benefits** (13th-mon
 | Corpus | Four official handbooks: DOLE, SSS, PhilHealth, Pag-IBIG (1,305 chunks) | Public documents I can serve and link to, in exactly the domain where general chatbots get figures subtly wrong |
 | Chunking | Per page, packed on sentence boundaries to ~1,000 chars with 150 overlap; PDF ligature repair | Citations carry real page numbers, and no rule is cut mid-sentence |
 | Metadata | `document_title`, `agency`, `page`, `source_url` | Every citation opens the PDF at its page; `agency` steers retrieval |
+| Embedding | OpenAI `text-embedding-3-small` (1,536 dims, cosine), hosted inside Upstash Vector | Upstash embeds on both upsert and query, so there is no embedding key or pipeline to run, and documents and questions always share one model |
 | Retrieval | Hybrid dense + BM25 keyword, reciprocal rank fusion, optional agency boost, top 8 | Keyword search catches exact terms that embeddings blur; the boost favors one handbook without hiding the others |
 | Generation | GPT-OSS 120B on Groq, 20B fallback; at most two searches per question | Free tool calling; the cap forces a written answer instead of endless searching |
 | Guardrails | Every figure must appear in a retrieved passage; off-topic questions declined | A wrong peso amount is worse than "the handbook doesn't say" |
@@ -36,7 +37,7 @@ It answers a benefit question with the rule, the computation, and a page citatio
 
 **The corpus is lopsided.** The SSS charter is 1,052 of the 1,305 chunks and mostly procedure, so a question that doesn't name an agency surfaces SSS passages first. The agency boost softens this; trimming the charter to its benefit sections is the real fix.
 
-**Quality drops silently under load.** Groq's free tier covers roughly 10–15 full answers a day. After that the smaller 20B model answers, it is less faithful, and the user cannot tell which model they got.
+**Quality drops silently under load.** Groq's free tier gives the 120B model 200,000 tokens a day, and each answer re-sends its retrieved passages on every step: one measured answer used about 14,000 tokens, so roughly 10–15 full answers a day. After that the smaller 20B model answers, it is less faithful, and the user cannot tell which model they got.
 
 ## 5. The trickiest decision
 
@@ -45,6 +46,8 @@ How far to trust the model. Making retrieval a tool lets the model skip it for s
 ## 6. How I tested it
 
 I ran 10 questions against production, covering all four agencies, Taglish, and an off-topic probe, and read every answer. That surfaced failures only visible end to end: answers that ended empty because the model kept searching, PDF text broken 2,316 times ("bene fi t"), figures from the model's memory, an off-topic question answered, and the agency filter above. A code review before submission found one more that every fresh-chat test missed: in a multi-turn chat, follow-up questions could not search at all, because the search cap counted the whole conversation. Each fix was re-run on the same questions, and the seed verifies itself with a known-answer probe.
+
+I also scored retrieval on its own. For the six answerable questions, five had a relevant passage in the top 8 without any agency boost: four at rank 1, one at rank 2. The miss was a PhilHealth claim question, where SSS procedure pages crowded the list. With the boost, PhilHealth pages took ranks 1–6, but that circular covers outpatient packages, not claim filing, so the real gap is coverage, not ranking.
 
 ## 7. What I'd do with another week
 

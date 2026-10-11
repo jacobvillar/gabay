@@ -9,8 +9,8 @@ npm install
 Copy `.env.example` to `.env.local` and fill in:
 - `GROQ_API_KEY` — free key from https://console.groq.com (open-weight gpt-oss-120b chat).
 - `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN` — create an Upstash Vector index
-  **with a built-in embedding model** (e.g. `mixedbread-ai/mxbai-embed-large-v1` or
-  `BAAI/bge-base-en-v1.5`). Upstash embeds text server-side, so no embedding API key is needed.
+  **with the built-in embedding model `text-embedding-3-small`** (1,536 dims, cosine). Upstash
+  embeds text server-side, so no embedding API key is needed.
 
 ## 3. Add the corpus
 Drop the PDFs into `public/docs/` (e.g. `dole-handbook.pdf`, `sss-guide.pdf`, `philhealth-guide.pdf`,

@@ -77,7 +77,7 @@ npm run dev                         # http://localhost:3000
 | Variable | Where |
 | --- | --- |
 | `GROQ_API_KEY` | Free key from [console.groq.com](https://console.groq.com) (chat) |
-| `UPSTASH_VECTOR_REST_URL` | [Upstash Vector](https://console.upstash.com) index, created **with a built-in embedding model** |
+| `UPSTASH_VECTOR_REST_URL` | [Upstash Vector](https://console.upstash.com) index, created **with the built-in `text-embedding-3-small` model** |
 | `UPSTASH_VECTOR_REST_TOKEN` | Same index (read-write token) |
 
 Full walkthrough: [`docs/development/setup.md`](docs/development/setup.md).
