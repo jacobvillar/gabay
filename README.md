@@ -53,7 +53,7 @@ renders the documents and pages it used.
 | Path | What it holds |
 | --- | --- |
 | [`app/`](app) | Next.js App Router — the chat UI (`page.tsx`) and the streaming RAG API (`api/chat/route.ts`) |
-| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool + history sanitizing), `rag/` (chunking, hybrid dense + keyword retrieval), `prompts/`, `observability/` |
+| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool + history sanitizing), `rag/` (chunking, hybrid dense + keyword retrieval), `ratelimit` (20 questions/hour per IP), `prompts/`, `observability/` |
 | [`components/`](components) | `App` (sidebar: New chat, Search chats, Documents, Recents with Rename/Delete), `Chat`, `Message`, `Sources`, `EmptyState`, `Logo` |
 | [`scripts/seed.ts`](scripts/seed.ts) | Parse `public/docs/*.pdf` per page → chunk → upsert to Upstash (which embeds server-side) |
 | [`public/docs/`](public/docs) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG), also served so each citation opens its exact page |

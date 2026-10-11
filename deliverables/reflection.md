@@ -47,7 +47,7 @@ How far to trust the model. Making retrieval a tool lets the model skip it for s
 
 I ran 10 questions against production, covering all four agencies, Taglish, and an off-topic probe, and read every answer. That surfaced failures only visible end to end: answers that ended empty because the model kept searching, PDF text broken 2,316 times ("bene fi t"), figures from the model's memory, an off-topic question answered, and the agency filter above. A code review before submission found one more that every fresh-chat test missed: in a multi-turn chat, follow-up questions could not search at all, because the search cap counted the whole conversation. Each fix was re-run on the same questions, and the seed verifies itself with a known-answer probe.
 
-I also scored retrieval on its own. For the six answerable questions, five had a relevant passage in the top 8 without any agency boost: four at rank 1, one at rank 2. The miss was a PhilHealth claim question, where SSS procedure pages crowded the list. With the boost, PhilHealth pages took ranks 1–6, but that circular covers outpatient packages, not claim filing, so the real gap is coverage, not ranking.
+I also scored retrieval on its own. For six benefit questions, five had a relevant passage in the top 8 without any agency boost: four at rank 1, one at rank 2. The miss was a PhilHealth claim question, where SSS procedure pages crowded the list. With the boost, PhilHealth pages took ranks 1–6, but that circular covers outpatient packages, not claim filing, so the real gap is coverage, not ranking.
 
 ## 7. What I'd do with another week
 

@@ -7,8 +7,9 @@
 Deployed and working at https://gabay-fint.vercel.app. Recent work: a self-verifying seed (ingestion logic in
 `lib/rag/ingestion.ts`), request validation and error
 surfacing, PDF-page citations, hybrid dense + keyword (BM25) retrieval with a per-agency boost, a fallback chat model, a
-two-search tool budget, PDF ligature repair, and a sidebar (collapsible rail, Search
-chats, Documents, Recents with Rename/Delete).
+two-search budget per question, PDF ligature repair, a sidebar (collapsible rail, Search
+chats, Documents, Recents with Rename/Delete), and launch hardening: untrusted-history caps,
+20 questions/hour per IP, output token cap, security headers, no question text in logs.
 
 **Before relying on the live app:** confirm the Upstash index holds 1,305 vectors (`npm run seed`
 once if it is empty; it verifies the count and a 13th-month probe and exits non-zero on failure;
@@ -59,7 +60,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 - **Documents** → collapsed by default; rows open each PDF from `public/docs/`.
 - **Recents** → "…" menu per chat (Rename, Delete with confirm); last 20 chats in `localStorage` (`gabay:chats`), saved when each answer finishes;
   try/catch so private mode still works (just unsaved). No accounts, no server storage.
-- **Intentionally omitted:** Agents, Projects, Search, **Admin panel / upload**. A public, no-auth
+- **Intentionally omitted:** Agents, Projects, web search, **Admin panel / upload**. A public, no-auth
   upload would let anyone poison the index. Add docs via `public/docs/` + `scripts/seed.ts` + `npm run seed`.
 
 ## Reliability notes
@@ -104,16 +105,16 @@ curl -s -N https://gabay-fint.vercel.app/api/chat -H 'content-type: application/
 ```
 Expect `data:` events including `tool-output-available` and streamed `text-delta`, no `error`.
 
-## Requirements checklist
-- [ ] Deployed publicly on Vercel (gabay-fint.vercel.app reachable in incognito)
-- [ ] Streams answers via Vercel AI SDK
-- [ ] RAG implemented as a **tool call** (not always-prepended)
-- [ ] Sources visible + readable under answers
-- [ ] Non-trivial, well-chosen corpus
-- [ ] Repo has README + correct setup info
-- [ ] Reflection specific + honest (`deliverables/reflection.pdf`, 2 pages)
-- [ ] Secrets not in client bundle (keys server-only; `next build` passes with no env)
-- [ ] Meaningful empty state
+## Requirements checklist (all verified on production, 2026-10-11)
+- [x] Deployed publicly on Vercel (gabay-fint.vercel.app reachable in incognito)
+- [x] Streams answers via Vercel AI SDK
+- [x] RAG implemented as a **tool call** (not always-prepended)
+- [x] Sources visible + readable under answers
+- [x] Non-trivial, well-chosen corpus
+- [x] Repo has README + correct setup info
+- [x] Reflection specific + honest (`deliverables/reflection.pdf`, 2 pages)
+- [x] Secrets not in client bundle (keys server-only; `next build` passes with no env)
+- [x] Meaningful empty state
 
 Weekly outcomes: corpus→KB · chunking/metadata/embedding decisions · Next.js+AI SDK streaming ·
 retrieval as tool call · public Vercel deploy w/ correct env · honest reflection.
@@ -124,7 +125,7 @@ Submission accepts a URL **or** a pdf/zip upload. Mapping lives in `deliverables
 
 - **SSS skew:** SSS charter is ~80% of chunks; can bias retrieval. `topK` is 8 to help recall.
   The per-agency boost has shipped; a reranker is a documented "next week" item.
-- **Citation tokens:** `gpt-oss` emits `【n†…】` markers; `components/Message.tsx` strips them and
-  renders Markdown (sources show in the panel). Don't re-introduce raw LaTeX/markers.
+- **Citation tokens:** `gpt-oss` emits `【n†…】` markers; `cleanAnswer` in `lib/format.ts` strips them
+  (plus leaked HTML/LaTeX) and `components/Message.tsx` renders Markdown (sources show in the panel). Don't re-introduce raw LaTeX/markers.
 - **Model name:** `openai/gpt-oss-120b` is an *open-weight* model on Groq (not the OpenAI API).
   `llama-3.3-70b-versatile` was retired — don't revert to it.

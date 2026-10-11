@@ -16,7 +16,7 @@ Next.js (App Router) + Vercel AI SDK v5 (chat) + Groq (open-weight GPT-OSS) + Up
 ## Layout (map to the production blueprint)
 `app/api/chat` = request boundary · `lib/config` = secret resolution · `lib/ai/provider` = model
 boundary · `lib/ai/tools` = tool registry · `lib/rag/*` = ingestion + retrieval ·
-`lib/prompts` = prompt manifest · `lib/observability` = telemetry.
+`lib/prompts` = prompt manifest · `lib/ratelimit` = per-IP limit · `lib/observability` = telemetry.
 
 ## Verify before committing
 `npm run typecheck` · `npm test` · `npm run build` (all must pass, build without keys).
