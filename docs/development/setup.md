@@ -19,7 +19,8 @@ citation metadata automatically; edit `DOC_META` in `scripts/seed.ts` for others
 
 ## 4. Seed the index
 ```bash
-npm run seed   # prints chunk counts per document
+npm run seed   # chunks per document, writes lib/rag/chunks.json, upserts, then verifies
+npm run seed -- --dry-run   # extract + chunks.json only, no Upstash writes
 ```
 
 ## 5. Run

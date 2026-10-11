@@ -3,7 +3,7 @@
 const CHIPS = [
   "How is 13th-month pay computed?",
   "How many service incentive leave days am I entitled to?",
-  "What are the current SSS contribution rates?",
+  "How do I claim my SSS maternity benefit?",
   "Can I avail a Pag-IBIG multi-purpose loan?",
 ];
 

@@ -28,7 +28,7 @@ retrieval. It runs publicly on Vercel at [gabay-fint.vercel.app](https://gabay-f
 | Embeddings | Upstash built-in model (text in, vectors server-side) | Removes the embedding API key entirely; one fewer secret |
 | Chunking | Per-page extraction (PDF ligature repair) → sentence/paragraph-aware packing to ~1000 chars, 150 overlap | Per-page parsing preserves real **page numbers**; sentence-aware packing keeps rules intact |
 | Metadata | `document_title`, `agency`, `page`, `source_url` | Makes citations readable and disambiguates across four agencies |
-| Retrieval | Hybrid: dense + BM25 keyword, reciprocal rank fusion, optional per-agency filter; fallback chat model; two-search cap | Keyword catches exact terms dense misses; the agency filter counters the SSS skew; free-tier limits (10k writes, 200k tokens/day) degrade answers instead of breaking them |
+| Retrieval | Hybrid: dense + BM25 keyword, reciprocal rank fusion, optional per-agency boost; fallback chat model; two-search cap | Keyword catches exact terms dense misses; the agency boost counters the SSS skew; free-tier limits (10k writes, 200k tokens/day) degrade answers instead of breaking them |
 | Interface | Onyx-style sidebar: New chat, collapsible Documents, Recents saved in the browser (localStorage) | No accounts or server storage — history stays on the visitor's device. Deliberately no admin upload: on a public app it would let anyone poison the index; new docs go through `npm run seed` |
 
 ## The trickiest decision
@@ -41,15 +41,19 @@ Grounded, cited answers on PH-specific rules. "How is 13th-month pay computed?" 
 retrieval tool, answers from the DOLE handbook (1/12 of basic salary, with the correct exclusions),
 and renders the exact source pages — something a raw model gets subtly wrong with no citations.
 
+## How I tested it
+
+An end-to-end eval of 10 questions against production (all four agencies, Taglish, and an off-topic probe), reading every answer. It caught five real defects: replies that ended empty because the model kept searching, PDF text broken 2,316 times ("bene fi t"), figures taken from model memory instead of the passages, an off-topic question answered, and raw HTML in tables. Each fix was re-run against the same questions, and the seed now verifies itself with a known-answer probe (13th-month pay must return DOLE pp. 50-54).
+
 ## What it does badly
 
-Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, and the per-agency filter helps when the model uses it, but unscoped searches still lean SSS. These are quality, not correctness, issues — but they are real. The free tiers are the other weak spot: about 10-15 full answers a day before the smaller fallback model takes over, and it is noticeably less faithful.
+Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, and the per-agency boost helps when the model uses it, but unscoped searches still lean SSS. These are quality, not correctness, issues — but they are real. The free tiers are the other weak spot: about 10-15 full answers a day before the smaller fallback model takes over, and it is noticeably less faithful.
 
 ## What I'd do with another week
 
-1. **Rebalance the corpus** — trim the SSS charter to its benefits sections (the per-agency filter is in place).
+1. **Rebalance the corpus** — trim the SSS charter to its benefits sections (the per-agency boost is in place).
 2. **Cross-encoder reranking** — rerank the fused dense + keyword results before they reach the model.
-3. **Eval harness** — score faithfulness and context-relevance on the demo-question set.
+3. **Automate the eval** — turn the 10-question run into a scored harness (faithfulness, context relevance) that runs on every change.
 4. **Inline citation mapping** — true `[1]`/`[2]` markers tied to the sources panel.
 
 ## References

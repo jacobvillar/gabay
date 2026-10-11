@@ -71,9 +71,9 @@ export function Chat({ id, initialMessages, onSave }: ChatProps) {
           <div className="w-full max-w-2xl">
             <div className="mb-6 flex flex-col items-center text-center">
               <Logo size={40} />
-              <h1 className="mt-4 text-2xl font-semibold">Alamin ang benepisyo mo.</h1>
-              <p className="mt-1.5 text-sm text-[var(--fg-muted)]">
-                Answers from official DOLE, SSS, PhilHealth &amp; Pag-IBIG handbooks — with sources.
+              <h1 className="mt-4 text-2xl font-semibold">Gabay sa bawat tanong.</h1>
+              <p className="mt-1.5 text-balance text-sm text-[var(--fg-muted)]">
+                Clear answers on Philippine laws and benefits, from official sources. Now covering DOLE, SSS, PhilHealth &amp; Pag-IBIG.
               </p>
             </div>
             {composer}

@@ -38,7 +38,7 @@ renders the documents and pages it used.
 - **Hybrid retrieval.** Every search runs dense (Upstash) and BM25 keyword search (over
   `lib/rag/chunks.json`, written by `npm run seed`) and fuses them with reciprocal rank fusion. If
   the vector index is empty or unreachable, the keyword side still answers.
-- **Per-agency filter.** The tool can scope a search to DOLE, SSS, PhilHealth or Pag-IBIG, so the
+- **Per-agency boost.** The tool can favor DOLE, SSS, PhilHealth or Pag-IBIG (other handbooks still appear), so the
   large SSS charter doesn't crowd out the other handbooks.
 - **Model fallback.** If Groq rate-limits `gpt-oss-120b`, the request retries once on `gpt-oss-20b`
   (a separate free-tier quota).
@@ -65,6 +65,7 @@ npm install
 cp .env.example .env.local          # fill in the 3 keys (see below)
 # add the DOLE/SSS/PhilHealth/Pag-IBIG PDFs to public/docs/
 npm run seed                        # chunk the PDFs, write lib/rag/chunks.json, upsert to Upstash
+                                    # (add `-- --dry-run` to skip Upstash; the real run verifies itself)
 npm run dev                         # http://localhost:3000
 ```
 

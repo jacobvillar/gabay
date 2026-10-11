@@ -25,3 +25,10 @@ test("keyword search honors the agency filter", () => {
   const dole = keywordSearch("13th month pay", 8, "DOLE");
   assert.ok(dole.length > 0 && dole.every((h) => h.agency === "DOLE"));
 });
+
+test("a wrong agency guess cannot hide the right handbook (agency boosts, never excludes)", async () => {
+  const { retrieve } = await import("../lib/rag/retrieval.ts");
+  // No env in tests: the vector side fails and is skipped, so this exercises keyword + fusion.
+  const hits = await retrieve("How many service incentive leave days am I entitled to?", 8, "SSS");
+  assert.ok(hits.some((h) => h.agency === "DOLE" && [37, 38].includes(h.page)), JSON.stringify(hits.map((h) => `${h.agency} p.${h.page}`)));
+});

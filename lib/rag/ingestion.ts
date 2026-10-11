@@ -67,3 +67,59 @@ export type ChunkMetadata = {
   page: number;
   source_url: string;
 };
+
+// ---------------------------------------------------------------------------
+// PDF → pages → chunk metadata. Used by scripts/seed.ts; kept here so it's testable.
+// ---------------------------------------------------------------------------
+
+/** Filename keyword → citation metadata. Edit when you add or rename a PDF in public/docs/. */
+const DOC_META: Record<string, { document_title: string; agency: string }> = {
+  dole: { document_title: "Handbook on Workers' Statutory Monetary Benefits (2023)", agency: "DOLE" },
+  sss: { document_title: "SSS Citizens Charter (2025)", agency: "SSS" },
+  philhealth: { document_title: "PhilHealth Konsulta Circular 2022-0032", agency: "PhilHealth" },
+  pagibig: { document_title: "Pag-IBIG Fund Programs and Services (2019)", agency: "Pag-IBIG" },
+};
+
+/** Citation metadata for a corpus file; `source_url` is where the app serves it (public/docs). */
+export function metaFor(file: string): Omit<ChunkMetadata, "text" | "page"> {
+  const key = Object.keys(DOC_META).find((k) => file.toLowerCase().includes(k));
+  const meta = key ? DOC_META[key] : { document_title: file.replace(/\.pdf$/i, ""), agency: "" };
+  return { ...meta, source_url: `/docs/${file}` };
+}
+
+type TextItem = { str?: string; hasEOL?: boolean; transform?: number[]; width?: number };
+const LIGATURE = /^(fi|fl|ff|ffi|ffl)$/;
+
+/**
+ * Join pdfjs text items into page text. pdfjs emits ligature glyphs ("fi", "fl", …) as their own
+ * items that touch their neighbours, so a blind space join yields "bene fi t" (2,316 times in the
+ * SSS charter). Glue only ligature items that touch (gap < 1pt); everything else is space-joined.
+ */
+export function joinTextItems(items: TextItem[]): string {
+  let text = "";
+  let prev: TextItem | undefined;
+  for (const it of items) {
+    const str = it.str ?? "";
+    const touching =
+      prev?.transform && it.transform && prev.width !== undefined &&
+      Math.abs(it.transform[4] - (prev.transform[4] + prev.width)) < 1;
+    const glue = touching && (LIGATURE.test(str) || LIGATURE.test(prev?.str ?? ""));
+    if (text && !text.endsWith("\n") && !glue) text += " ";
+    text += str;
+    if (it.hasEOL) text += "\n";
+    prev = it;
+  }
+  return text;
+}
+
+/** Text of each page (index 0 = page 1). pdfjs is loaded lazily so app code never bundles it. */
+export async function extractPages(data: Uint8Array): Promise<string[]> {
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const doc = await getDocument({ data, useSystemFonts: true }).promise;
+  const pages: string[] = [];
+  for (let p = 1; p <= doc.numPages; p++) {
+    const content = await (await doc.getPage(p)).getTextContent();
+    pages.push(joinTextItems(content.items as TextItem[]));
+  }
+  return pages;
+}

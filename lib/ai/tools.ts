@@ -16,7 +16,7 @@ export const searchKnowledgeBase = tool({
       .enum(["DOLE", "SSS", "PhilHealth", "Pag-IBIG"])
       .optional()
       .describe(
-        "Limit the search to one agency's handbook when the question clearly belongs to it " +
+        "Prefer one agency's handbook when the question clearly belongs to it (results from it rank higher; others still appear) " +
           "(13th-month pay, leave, holiday pay, wages → DOLE; SSS loans, contributions, maternity, " +
           "retirement claims → SSS; Konsulta → PhilHealth; Pag-IBIG loans → Pag-IBIG). Omit if unsure.",
       ),

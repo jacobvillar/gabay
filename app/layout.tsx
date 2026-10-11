@@ -4,11 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Gabay",
   description:
-    "Ask about your Philippine statutory worker benefits — 13th-month pay, leave, SSS, " +
-    "PhilHealth, and Pag-IBIG — answered from official DOLE, SSS, PhilHealth & Pag-IBIG handbooks, with sources.",
+    "Gabay sa bawat tanong. Clear answers on Philippine laws and benefits from official sources, " +
+    "with citations. Now covering DOLE, SSS, PhilHealth and Pag-IBIG.",
   openGraph: {
-    title: "Gabay — Philippine Worker Benefits Assistant",
-    description: "Grounded answers about Filipino workers' statutory benefits, with cited sources.",
+    title: "Gabay · Gabay sa bawat tanong",
+    description: "Clear answers on Philippine laws and benefits, with cited official sources.",
     type: "website",
   },
 };

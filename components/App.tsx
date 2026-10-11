@@ -6,10 +6,10 @@ import { Chat } from "./Chat";
 import { Logo } from "./Logo";
 
 const DOCS = [
-  { name: "DOLE — Statutory Benefits", url: "/docs/dole-handbook-2023.pdf" },
-  { name: "SSS — Citizens Charter", url: "/docs/sss-citizens-charter-2025.pdf" },
-  { name: "PhilHealth — Konsulta", url: "/docs/philhealth-konsulta-circular-2022.pdf" },
-  { name: "Pag-IBIG — Programs", url: "/docs/pagibig-programs-2019.pdf" },
+  { name: "DOLE · Statutory Benefits", url: "/docs/dole-handbook-2023.pdf" },
+  { name: "SSS · Citizens Charter", url: "/docs/sss-citizens-charter-2025.pdf" },
+  { name: "PhilHealth · Konsulta", url: "/docs/philhealth-konsulta-circular-2022.pdf" },
+  { name: "Pag-IBIG · Programs", url: "/docs/pagibig-programs-2019.pdf" },
 ];
 
 type SavedChat = { id: string; title: string; messages: UIMessage[] };
@@ -288,7 +288,7 @@ export function App() {
             <div className="mt-1 min-h-0 flex-1 overflow-y-auto">
               {visible.length === 0 ? (
                 <p className="px-3 py-1.5 text-sm text-[var(--fg-muted)]">
-                  {q ? "No chats match your search." : "Try asking a question — your chats will appear here."}
+                  {q ? "No chats match your search." : "Try asking a question. Your chats will appear here."}
                 </p>
               ) : (
                 <ul className="space-y-0.5">

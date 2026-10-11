@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Source } from "@/lib/rag/retrieval";
 import { Sources } from "./Sources";
+import { cleanAnswer } from "@/lib/format";
 import { Logo } from "./Logo";
 
 export function Message({ message, pending = false }: { message: UIMessage; pending?: boolean }) {
@@ -18,12 +19,7 @@ export function Message({ message, pending = false }: { message: UIMessage; pend
     }
   }
 
-  // Strip model-specific citation tokens like 【3†L1-L4】; real sources render below.
-  // Also drop stray HTML list/break tags: Markdown is rendered without raw HTML, so they'd show literally.
-  const clean = text
-    .replace(/【[^】]*】/g, "")
-    .replace(/<\/?(br|ul|ol|li|p)\s*\/?>/gi, " ")
-    .replace(/ +([.,])/g, "$1");
+  const clean = cleanAnswer(text);
 
   if (isUser) {
     return (

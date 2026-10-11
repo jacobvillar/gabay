@@ -4,13 +4,15 @@
 
 ## Current state (2026-10-11)
 
-Deployed and working at https://gabay-fint.vercel.app. Recent work: request validation and error
-surfacing, PDF-page citations, hybrid dense + keyword (BM25) retrieval with a per-agency filter, a fallback chat model, a
+Deployed and working at https://gabay-fint.vercel.app. Recent work: a self-verifying seed (ingestion logic in
+`lib/rag/ingestion.ts`), request validation and error
+surfacing, PDF-page citations, hybrid dense + keyword (BM25) retrieval with a per-agency boost, a fallback chat model, a
 two-search tool budget, PDF ligature repair, and an Onyx-style sidebar (collapsible rail, Search
 chats, Documents, Recents with Rename/Delete).
 
 **Before relying on the live app:** confirm the Upstash index holds 1,305 vectors (`npm run seed`
-once if it is empty) and that Groq's daily quota is not exhausted (see Reliability notes).
+once if it is empty; it verifies the count and a 13th-month probe and exits non-zero on failure;
+`-- --dry-run` extracts and writes `chunks.json` without touching Upstash) and that Groq's daily quota is not exhausted (see Reliability notes).
 
 ## What Gabay is
 
@@ -65,7 +67,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
   re-seeds hit the cap and a reset-first seed left the index empty; the seed now writes in place
   and prunes leftovers, and writes `lib/rag/chunks.json` first.
 - **Hybrid retrieval.** `retrieve()` fuses Upstash dense results with BM25 over `chunks.json`
-  (reciprocal rank fusion), optionally filtered by `agency`. If the vector side is empty or fails,
+  (reciprocal rank fusion), optionally boosting one `agency`. If the vector side is empty or fails,
   keyword results alone keep answers grounded. Logged as `vector search empty`.
 - **Groq free tier: 200k tokens/day for gpt-oss-120b** (about 10-15 answers). On 429 the provider
   retries on gpt-oss-20b, which is noticeably less faithful. Dev Tier removes the limit.
@@ -113,7 +115,7 @@ Submission accepts a URL **or** a pdf/zip upload. Mapping lives in `deliverables
 ## Known caveats (not bugs — document, don't over-fix)
 
 - **SSS skew:** SSS charter is ~80% of chunks; can bias retrieval. `topK` is 8 to help recall.
-  Deeper fix (per-agency filter / rerank) is a documented "next week" item, out of scope for shipping.
+  Deeper fix (per-agency boost / rerank) is a documented "next week" item, out of scope for shipping.
 - **Citation tokens:** `gpt-oss` emits `【n†…】` markers; `components/Message.tsx` strips them and
   renders Markdown (sources show in the panel). Don't re-introduce raw LaTeX/markers.
 - **Model name:** `openai/gpt-oss-120b` is an *open-weight* model on Groq (not the OpenAI API).

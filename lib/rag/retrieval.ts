@@ -59,15 +59,23 @@ async function denseSearch(query: string, topK: number, agency?: string): Promis
   }
 }
 
-/** `agency` (optional) restricts both searches to one handbook, which counters the SSS skew. */
+/**
+ * `agency` (optional) BOOSTS one handbook, it never excludes the others: scoped and unscoped
+ * searches are fused together, so scoped hits rank higher (they appear in more lists) but a wrong
+ * agency guess by the model can't hide the right answer (seen live: SIL scoped to SSS).
+ */
 export async function retrieve(query: string, topK = config.topK, agency?: string): Promise<Source[]> {
-  const [dense, keyword] = await Promise.all([
-    denseSearch(query, topK, agency),
-    Promise.resolve(keywordSearch(query, topK, agency)),
-  ]);
-  if (dense.length === 0) logger.warn("vector search empty; keyword results only", { query, agency });
+  const searches: Promise<ChunkMetadata[]>[] = [
+    denseSearch(query, topK),
+    Promise.resolve(keywordSearch(query, topK)),
+  ];
+  if (agency) {
+    searches.push(denseSearch(query, topK, agency), Promise.resolve(keywordSearch(query, topK, agency)));
+  }
+  const lists = await Promise.all(searches);
+  if (lists[0].length === 0) logger.warn("vector search empty; keyword results only", { query, agency });
 
-  return fuseRanked([dense, keyword], topK).map((m, i) => ({
+  return fuseRanked(lists, topK).map((m, i) => ({
     id: i + 1,
     score: m.score,
     text: m.text ?? "",

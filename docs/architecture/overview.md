@@ -10,7 +10,7 @@
     ├─ model decides to call the tool ─▶ lib/ai/tools.ts
     │                                      └▶ lib/rag/retrieval.ts
     │                                           ├ Upstash embeds query (server-side)
-    │                                           ├ query Upstash (topK, agency filter)
+    │                                           ├ query Upstash (topK, agency boost)
     │                                           ├ BM25 over lib/rag/chunks.json (same filter)
     │                                           └ reciprocal rank fusion → top K
     │  tool returns { sources }
@@ -26,9 +26,11 @@
 - **Tool** — `lib/ai/tools.ts`: `searchKnowledgeBase`, the only way facts enter an answer. It enforces a two-search budget
   (Groq rejects `toolChoice: "none"` for gpt-oss, so the loop is bounded in the tool, not the prompt).
 - **Retrieval** — `lib/rag/retrieval.ts`: hybrid: Upstash dense query (embedded server-side) and BM25
-  keyword search (`lib/rag/keyword.ts`) run in parallel, optionally filtered to one agency, fused
+  keyword search (`lib/rag/keyword.ts`) run in parallel, optionally boosting one agency, fused
   with reciprocal rank fusion into a typed `Source[]`. Either side may be empty.
-- **Ingestion** — `scripts/seed.ts` + `lib/rag/ingestion.ts`: per-page parse (repairs PDF ligature breaks
+- **Ingestion** — `lib/rag/ingestion.ts` owns extraction, metadata and chunking (unit-tested);
+  `scripts/seed.ts` is the I/O CLI: sorted files, batch retry, `--dry-run`, and post-seed
+  verification (count + known-answer probe). Pipeline: per-page parse (repairs PDF ligature breaks
   like "bene fi t") → chunk → write `lib/rag/chunks.json` → upsert with
   `{ document_title, agency, page, source_url }`, where `source_url` is `/docs/<file>`.
 
