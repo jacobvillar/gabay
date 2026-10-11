@@ -13,9 +13,9 @@ export function Sources({ sources }: { sources: Source[] }) {
       </p>
       <ol className="flex flex-wrap gap-2">
         {unique.map((s, i) => (
-          <li key={s.id}>
+          <li key={`${s.document_title}-${s.page}`}>
             <a
-              href={s.source_url || "#"}
+              href={s.source_url ? `${s.source_url}#page=${s.page}` : undefined}
               target="_blank"
               rel="noreferrer"
               title={s.document_title}

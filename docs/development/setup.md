@@ -13,7 +13,7 @@ Copy `.env.example` to `.env.local` and fill in:
   `BAAI/bge-base-en-v1.5`). Upstash embeds text server-side, so no embedding API key is needed.
 
 ## 3. Add the corpus
-Drop the PDFs into `data/` (e.g. `dole-handbook.pdf`, `sss-guide.pdf`, `philhealth-guide.pdf`,
+Drop the PDFs into `public/docs/` (e.g. `dole-handbook.pdf`, `sss-guide.pdf`, `philhealth-guide.pdf`,
 `pagibig-guide.pdf`). Filenames containing `dole`/`sss`/`philhealth`/`pagibig` get the right
 citation metadata automatically; edit `DOC_META` in `scripts/seed.ts` for others.
 

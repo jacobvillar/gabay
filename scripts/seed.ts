@@ -1,5 +1,6 @@
 /**
- * Seed the Upstash Vector index from the PDFs in data/.
+ * Seed the Upstash Vector index from the PDFs in public/docs/ (also served by the app,
+ * so each citation links to the exact PDF page).
  * Per-page text extraction (so citations carry real page numbers), then chunk,
  * then upsert the raw text — Upstash embeds it server-side with the index's model.
  *
@@ -19,39 +20,37 @@ try {
   // ponytail: fall back to ambient env (e.g. CI secrets) if no .env.local.
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = path.join(process.cwd(), "public", "docs");
 
 // Map a filename to its citation metadata. Edit when you add/rename a PDF.
-type DocMeta = { document_title: string; agency: string; source_url: string };
+type DocMeta = { document_title: string; agency: string };
 const DOC_META: Record<string, DocMeta> = {
   dole: {
     document_title: "Handbook on Workers' Statutory Monetary Benefits (2023)",
     agency: "DOLE",
-    source_url: "https://www.dole.gov.ph/",
   },
   sss: {
     document_title: "SSS Citizens Charter (2025)",
     agency: "SSS",
-    source_url: "https://www.sss.gov.ph/",
   },
   philhealth: {
     document_title: "PhilHealth Konsulta Circular 2022-0032",
     agency: "PhilHealth",
-    source_url: "https://www.philhealth.gov.ph/",
   },
   pagibig: {
     document_title: "Pag-IBIG Fund Programs and Services (2019)",
     agency: "Pag-IBIG",
-    source_url: "https://www.pagibigfund.gov.ph/",
   },
 };
 
-function metaFor(file: string): DocMeta {
+function metaFor(file: string): DocMeta & { source_url: string } {
   const key = Object.keys(DOC_META).find((k) => file.toLowerCase().includes(k));
-  if (key) return DOC_META[key];
-  // ponytail: unknown file — derive a title from the filename, leave agency blank.
-  return { document_title: file.replace(/\.pdf$/i, ""), agency: "", source_url: "" };
+  // Unknown file: derive a title from the filename, leave agency blank.
+  const meta = key ? DOC_META[key] : { document_title: file.replace(/\.pdf$/i, ""), agency: "" };
+  return { ...meta, source_url: `/docs/${file}` }; // served from public/docs
 }
+
+const LIGATURE = /^(fi|fl|ff|ffi|ffl)$/;
 
 async function pagesOf(filePath: string): Promise<string[]> {
   const data = new Uint8Array(fs.readFileSync(filePath));
@@ -60,9 +59,28 @@ async function pagesOf(filePath: string): Promise<string[]> {
   for (let p = 1; p <= doc.numPages; p++) {
     const page = await doc.getPage(p);
     const content = await page.getTextContent();
-    const items = content.items as Array<{ str?: string; hasEOL?: boolean }>;
+    const items = content.items as Array<{
+      str?: string;
+      hasEOL?: boolean;
+      transform?: number[];
+      width?: number;
+    }>;
     let pageText = "";
-    for (const it of items) pageText += (it.str ?? "") + (it.hasEOL ? "\n" : " ");
+    let prev: (typeof items)[number] | undefined;
+    for (const it of items) {
+      const str = it.str ?? "";
+      // pdfjs emits ligature glyphs ("fi", "fl", …) as their own touching items, so a blind
+      // space join yields "bene fi t". Glue only ligatures that touch their neighbour.
+      const touching =
+        prev?.transform && it.transform && prev.width !== undefined &&
+        Math.abs(it.transform[4] - (prev.transform[4] + prev.width)) < 1;
+      if (pageText && !pageText.endsWith("\n")) {
+        if (!(touching && (LIGATURE.test(str) || LIGATURE.test(prev?.str ?? "")))) pageText += " ";
+      }
+      pageText += str;
+      if (it.hasEOL) pageText += "\n";
+      prev = it;
+    }
     pages.push(pageText);
   }
   return pages;
@@ -74,7 +92,7 @@ async function main() {
     : [];
 
   if (files.length === 0) {
-    console.error("No PDFs in data/. Drop the DOLE/SSS/PhilHealth/Pag-IBIG PDFs there first.");
+    console.error("No PDFs in public/docs/. Drop the DOLE/SSS/PhilHealth/Pag-IBIG PDFs there first.");
     process.exit(1);
   }
 

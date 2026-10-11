@@ -5,7 +5,7 @@ import type { Source } from "@/lib/rag/retrieval";
 import { Sources } from "./Sources";
 import { Logo } from "./Logo";
 
-export function Message({ message }: { message: UIMessage }) {
+export function Message({ message, pending = false }: { message: UIMessage; pending?: boolean }) {
   const isUser = message.role === "user";
 
   let text = "";
@@ -14,12 +14,16 @@ export function Message({ message }: { message: UIMessage }) {
     if (part.type === "text") text += part.text as string;
     if (part.type === "tool-searchKnowledgeBase" && part.state === "output-available") {
       const out = part.output as { sources?: Source[] } | undefined;
-      if (out?.sources) sources = out.sources;
+      if (out?.sources) sources = [...sources, ...out.sources]; // union across searches
     }
   }
 
   // Strip model-specific citation tokens like 【3†L1-L4】; real sources render below.
-  const clean = text.replace(/【[^】]*】/g, "").replace(/ +([.,])/g, "$1");
+  // Also drop stray HTML list/break tags: Markdown is rendered without raw HTML, so they'd show literally.
+  const clean = text
+    .replace(/【[^】]*】/g, "")
+    .replace(/<\/?(br|ul|ol|li|p)\s*\/?>/gi, " ")
+    .replace(/ +([.,])/g, "$1");
 
   if (isUser) {
     return (
@@ -42,7 +46,11 @@ export function Message({ message }: { message: UIMessage }) {
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{clean}</ReactMarkdown>
           </div>
         ) : (
-          <div className="text-sm text-[var(--fg-muted)]">Searching the handbooks…</div>
+          <div className="text-sm text-[var(--fg-muted)]">
+            {pending
+              ? "Searching the handbooks…"
+              : "I couldn't find a clear answer in the handbooks. Try rephrasing, or ask about one agency."}
+          </div>
         )}
         <Sources sources={sources} />
       </div>

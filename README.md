@@ -19,7 +19,7 @@ wrong and cite nothing. **Gabay answers only from official government handbooks 
 source passages**, so retrieval with citations visibly beats a raw LLM.
 
 ```text
-  CORPUS (data/)          INDEX (Upstash Vector)        CHAT (Next.js / Vercel)
+  CORPUS (public/docs/)   INDEX (Upstash Vector)        CHAT (Next.js / Vercel)
  ┌──────────────────┐   ┌──────────────────────┐   ┌──────────────────────────────┐
  │ DOLE · SSS ·     │ ▶ │ per-page chunks,     │ ▶ │ streaming chat; the model     │
  │ PhilHealth ·     │   │ embedded server-side │   │ calls searchKnowledgeBase,    │
@@ -39,8 +39,8 @@ renders the documents and pages it used.
 | [`app/`](app) | Next.js App Router — the chat UI (`page.tsx`) and the streaming RAG API (`api/chat/route.ts`) |
 | [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool), `rag/` (chunking + retrieval), `prompts/`, `observability/` |
 | [`components/`](components) | `Chat`, `Message`, `Sources`, `EmptyState`, `Logo` |
-| [`scripts/seed.ts`](scripts/seed.ts) | Parse `data/*.pdf` per page → chunk → upsert to Upstash (which embeds server-side) |
-| [`data/`](data) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG) |
+| [`scripts/seed.ts`](scripts/seed.ts) | Parse `public/docs/*.pdf` per page → chunk → upsert to Upstash (which embeds server-side) |
+| [`public/docs/`](public/docs) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG), also served so each citation opens its exact page |
 | [`evals/`](evals) | Demo questions for local iteration |
 | [`docs/`](docs/index.md) | Architecture, ADRs, setup, and security notes |
 | [`deliverables/`](deliverables) | Reflection (md + 1-page PDF), submission map, demo questions |
@@ -50,7 +50,7 @@ renders the documents and pages it used.
 ```bash
 npm install
 cp .env.example .env.local          # fill in the 3 keys (see below)
-# add the DOLE/SSS/PhilHealth/Pag-IBIG PDFs to data/
+# add the DOLE/SSS/PhilHealth/Pag-IBIG PDFs to public/docs/
 npm run seed                        # index the corpus (prints chunk counts)
 npm run dev                         # http://localhost:3000
 ```

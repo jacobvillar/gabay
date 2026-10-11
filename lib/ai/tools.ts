@@ -13,9 +13,19 @@ export const searchKnowledgeBase = tool({
   inputSchema: z.object({
     query: z.string().describe("A focused search query derived from the user's question."),
   }),
-  execute: async ({ query }): Promise<{ sources: Source[] }> => {
+  execute: async ({ query }, { messages }): Promise<{ sources: Source[]; note?: string }> => {
+    // Search budget, enforced here because Groq rejects toolChoice "none" for gpt-oss.
+    // Without it, a model unhappy with the passages searches until the step cap and never answers.
+    const prior = messages
+      .flatMap((m) => (m.role === "assistant" && Array.isArray(m.content) ? m.content : []))
+      .filter((p) => p.type === "tool-call").length;
+    if (prior >= 2) {
+      return { sources: [], note: "Search limit reached. Do not search again. Answer now from the passages already returned; say plainly what they do not cover." };
+    }
     const sources = await retrieve(query);
-    logger.info("retrieval", { query, hits: sources.length });
-    return { sources };
+    logger.info("retrieval", { query, hits: sources.length, call: prior + 1 });
+    return prior === 1
+      ? { sources, note: "This was your last search. Answer now from all passages returned so far." }
+      : { sources };
   },
 });

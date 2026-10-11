@@ -88,8 +88,8 @@ export function Chat({ id, initialMessages, onSave }: ChatProps) {
     <main className="flex h-dvh flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-7 px-4 py-8">
-          {messages.map((m) => (
-            <Message key={m.id} message={m} />
+          {messages.map((m, i) => (
+            <Message key={m.id} message={m} pending={busy && i === messages.length - 1} />
           ))}
           {error && (
             <p role="alert" className="text-sm text-[var(--fg-muted)]">

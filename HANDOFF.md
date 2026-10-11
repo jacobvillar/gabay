@@ -45,7 +45,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 | System prompt | `lib/prompts/system.ts` |
 | UI shell + sidebar | `components/App.tsx` (New chat · Documents toggle · Recents in localStorage); `app/page.tsx` just renders it |
 | Chat UI | `components/{Chat,Message,Sources,EmptyState,Logo}.tsx` |
-| Corpus (PDFs) | `data/*.pdf` |
+| Corpus (PDFs) | `public/docs/*.pdf` (served at `/docs/…`, so citations open the exact page) |
 | Docs | `docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `DESIGN.md`, `PRODUCT.md` |
 | Deliverables | `deliverables/` (reflection md+pdf, submission.md, demo-questions.md, zip) |
 
@@ -56,7 +56,7 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 - **Recents** → last 20 chats in `localStorage` (`gabay:chats`), saved when each answer finishes;
   try/catch so private mode still works (just unsaved). No accounts, no server storage.
 - **Intentionally omitted:** Agents, Projects, Search, **Admin panel / upload**. A public, no-auth
-  upload would let anyone poison the index. Add docs via `data/` + `scripts/seed.ts` + `npm run seed`.
+  upload would let anyone poison the index. Add docs via `public/docs/` + `scripts/seed.ts` + `npm run seed`.
 
 ## Secrets / env
 
@@ -66,7 +66,7 @@ Three server-only vars, set in `.env.local` (local, gitignored) **and** Vercel P
 
 ## Corpus / index state (already seeded)
 
-Upstash index holds **1,313 chunks**: DOLE 203 · PhilHealth 35 · Pag-IBIG 15 · **SSS 1060** (structure-aware).
+Upstash index holds **1,305 chunks**: DOLE 203 · PhilHealth 35 · Pag-IBIG 15 · **SSS 1052** (structure-aware; ligature-fixed 2026-10-11 — SSS text used to read "bene fi t").
 Re-seed only if PDFs change: `npm run seed` (reads `.env.local`; resets the index first).
 
 ## Verify commands

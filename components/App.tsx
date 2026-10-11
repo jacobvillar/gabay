@@ -6,10 +6,10 @@ import { Chat } from "./Chat";
 import { Logo } from "./Logo";
 
 const DOCS = [
-  { name: "DOLE — Statutory Benefits", url: "https://www.dole.gov.ph/" },
-  { name: "SSS — Citizens Charter", url: "https://www.sss.gov.ph/" },
-  { name: "PhilHealth — Konsulta", url: "https://www.philhealth.gov.ph/" },
-  { name: "Pag-IBIG — Programs", url: "https://www.pagibigfund.gov.ph/" },
+  { name: "DOLE — Statutory Benefits", url: "/docs/dole-handbook-2023.pdf" },
+  { name: "SSS — Citizens Charter", url: "/docs/sss-citizens-charter-2025.pdf" },
+  { name: "PhilHealth — Konsulta", url: "/docs/philhealth-konsulta-circular-2022.pdf" },
+  { name: "Pag-IBIG — Programs", url: "/docs/pagibig-programs-2019.pdf" },
 ];
 
 type SavedChat = { id: string; title: string; messages: UIMessage[] };

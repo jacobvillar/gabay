@@ -20,7 +20,7 @@
 | Streams answers via the Vercel AI SDK | `app/api/chat/route.ts` → `streamText(...).toUIMessageStreamResponse()` |
 | RAG implemented as a tool call | `lib/ai/tools.ts` `searchKnowledgeBase`; model calls it (not always-prepended) |
 | Sources visible and readable under answers | `components/Sources.tsx` — numbered agency · page chips, one per document page, full title on hover, linked |
-| Non-trivial, well-chosen corpus | DOLE/SSS/PhilHealth/Pag-IBIG official handbooks (`data/`) |
+| Non-trivial, well-chosen corpus | DOLE/SSS/PhilHealth/Pag-IBIG official handbooks (`public/docs/`, linked from every citation) |
 | Repo includes README + correct setup info | `README.md`, `docs/development/setup.md`, `.env.example` |
 | Secrets not exposed in client bundle | Keys read server-side only via `lib/config.ts`; build passes with no env |
 | Meaningful empty state | Centered greeting + suggested-prompt chips (`components/EmptyState.tsx`) |
