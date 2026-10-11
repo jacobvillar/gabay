@@ -8,7 +8,7 @@
 | --- | --- |
 | Public app URL | https://gabay-fint.vercel.app |
 | GitHub repository | https://github.com/jacobvillar/gabay |
-| One-page reflection | [reflection.pdf](reflection.pdf) (source: [reflection.md](reflection.md)) |
+| Reflection (2 pages) | [reflection.pdf](reflection.pdf) (source: [reflection.md](reflection.md)) |
 | Upload package | `gabay-submission.zip` (reflection.pdf + this file + demo questions) |
 | Demo questions | [demo-questions.md](demo-questions.md) |
 
@@ -24,7 +24,7 @@
 | Repo includes README + correct setup info | `README.md`, `docs/development/setup.md`, `.env.example` |
 | Secrets not exposed in client bundle | Keys read server-side only via `lib/config.ts`; build passes with no env |
 | Meaningful empty state | Centered greeting + suggested-prompt chips (`components/EmptyState.tsx`) |
-| Reflection specific and honest | [reflection.pdf](reflection.pdf) (one page) |
+| Reflection specific and honest | [reflection.pdf](reflection.pdf) (2 pages) |
 
 ## Beyond the checklist
 
@@ -39,13 +39,13 @@
 - **Graceful degradation:** a fallback chat model on rate limits, and a two-search budget so every
   reply ends with a written answer.
 - **Chat management:** Search chats, plus Rename and Delete on each recent chat.
-- **Hardened API:** `/api/chat` rejects malformed requests with 400 and caps history at 20 messages;
+- **Hardened API:** `/api/chat` rejects malformed requests with 400 and treats the browser's
+  history as untrusted (user/assistant text only, 20 messages, 4,000 characters each), so a client
+  can't replace the system prompt or plant fake passages; each visitor gets 20 questions an hour;
   the UI shows model errors with a retry.
 - **Verified ingestion:** `npm run seed` checks the stored count and a known-answer probe
   (13th-month pay → DOLE pp. 50-54) and fails loudly otherwise; `-- --dry-run` skips Upstash.
-- **Checks:** `npm run typecheck && npm test && npm run build` pass (19 tests: chunking, PDF
-  ligature repair, citation metadata, the 400 path, keyword search, rank fusion, the agency
-  filter); the build passes with no env vars.
+- **Checks:** typecheck, tests and build pass in CI; the build needs no env vars.
 
 ## Weekly outcomes addressed
 

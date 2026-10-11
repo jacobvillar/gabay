@@ -1,7 +1,7 @@
 /**
  * Keyword (BM25) search over the local chunk copy written by `npm run seed`.
- * Used only as a fallback when the vector index returns nothing (empty, unreachable, or
- * over its free-tier quota), so the app keeps answering from the same corpus.
+ * Runs on every search and is fused with dense results (lib/rag/retrieval.ts); if the vector
+ * index is empty, unreachable, or over quota, it alone keeps the app answering.
  */
 import chunks from "./chunks.json";
 import type { ChunkMetadata } from "./ingestion";

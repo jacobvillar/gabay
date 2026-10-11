@@ -17,6 +17,7 @@ export const config = {
   groqKey: () => required("GROQ_API_KEY"),
   upstashUrl: () => required("UPSTASH_VECTOR_REST_URL"),
   upstashToken: () => required("UPSTASH_VECTOR_REST_TOKEN"),
+  questionsPerHour: 20, // per visitor IP; generous because PH mobile carriers share IPs
   // Tunables (product decisions, not defaults to ignore).
   // Open-weight GPT-OSS on Groq; supports tool calling, free tier.
   chatModel: "openai/gpt-oss-120b",

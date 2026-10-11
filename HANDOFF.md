@@ -39,6 +39,8 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 | --- | --- |
 | Streaming + tool wiring | `app/api/chat/route.ts` |
 | Retrieval tool | `lib/ai/tools.ts` (`searchKnowledgeBase`) |
+| History sanitizing | `lib/ai/history.ts` (`sanitizeHistory`) |
+| Rate limit | `lib/ratelimit.ts` (`allowRequest`) |
 | Retrieval (Upstash query) | `lib/rag/retrieval.ts` |
 | Chunking | `lib/rag/ingestion.ts` + `scripts/seed.ts` |
 | Model boundary | `lib/ai/provider.ts` (Groq) |
@@ -71,8 +73,15 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
   keyword results alone keep answers grounded. Logged as `vector search empty`.
 - **Groq free tier: 200k tokens/day for gpt-oss-120b** (about 10-15 answers). On 429 the provider
   retries on gpt-oss-20b, which is noticeably less faithful. Dev Tier removes the limit.
-- **Tool loop.** `searchKnowledgeBase` allows two searches, then returns "answer now"; `MAX_STEPS`
-  is 4. `toolChoice: "none"` and `activeTools: []` both fail on Groq for gpt-oss.
+- **Tool loop.** `searchKnowledgeBase` allows two searches per question (counted since the latest
+  user message, `searchesThisTurn`), then returns "answer now"; `MAX_STEPS` is 4.
+  `toolChoice: "none"` and `activeTools: []` both fail on Groq for gpt-oss.
+- **Untrusted history.** `lib/ai/history.ts` keeps only user/assistant text parts (20 messages,
+  4,000 chars each) and the route requires the last one to be the user's. Old tool outputs are
+  dropped, so a follow-up searches again.
+- **Rate limit.** `lib/ratelimit.ts`: 20 questions/hour per IP (sliding window), 429 with a
+  message the chat shows. In-memory, so each Vercel instance counts separately and a restart
+  resets it; Redis was skipped as a paid add-on. Upgrade: a Vercel firewall rule if the plan has one.
 
 ## Secrets / env
 
@@ -83,7 +92,7 @@ Three server-only vars, set in `.env.local` (local, gitignored) **and** Vercel P
 ## Corpus / index state (already seeded)
 
 Upstash index holds **1,305 chunks**: DOLE 203 · PhilHealth 35 · Pag-IBIG 15 · **SSS 1052** (structure-aware; ligature-fixed 2026-10-11 — SSS text used to read "bene fi t").
-Re-seed only if PDFs change: `npm run seed` (reads `.env.local`; resets the index first).
+Re-seed only if PDFs change: `npm run seed` (reads `.env.local`; overwrites in place, then prunes leftovers).
 
 ## Verify commands
 
@@ -103,7 +112,7 @@ Expect `data:` events including `tool-output-available` and streamed `text-delta
 - [ ] Sources visible + readable under answers
 - [ ] Non-trivial, well-chosen corpus
 - [ ] Repo has README + correct setup info
-- [ ] Reflection specific + honest (`deliverables/reflection.pdf`, 1 page)
+- [ ] Reflection specific + honest (`deliverables/reflection.pdf`, 2 pages)
 - [ ] Secrets not in client bundle (keys server-only; `next build` passes with no env)
 - [ ] Meaningful empty state
 
@@ -115,7 +124,7 @@ Submission accepts a URL **or** a pdf/zip upload. Mapping lives in `deliverables
 ## Known caveats (not bugs — document, don't over-fix)
 
 - **SSS skew:** SSS charter is ~80% of chunks; can bias retrieval. `topK` is 8 to help recall.
-  Deeper fix (per-agency boost / rerank) is a documented "next week" item, out of scope for shipping.
+  The per-agency boost has shipped; a reranker is a documented "next week" item.
 - **Citation tokens:** `gpt-oss` emits `【n†…】` markers; `components/Message.tsx` strips them and
   renders Markdown (sources show in the panel). Don't re-introduce raw LaTeX/markers.
 - **Model name:** `openai/gpt-oss-120b` is an *open-weight* model on Groq (not the OpenAI API).

@@ -93,7 +93,8 @@ export function Chat({ id, initialMessages, onSave }: ChatProps) {
           ))}
           {error && (
             <p role="alert" className="text-sm text-[var(--fg-muted)]">
-              Something went wrong reaching the model.{" "}
+              {/* 429 body from lib/ratelimit.ts (not imported: keep server modules out of the client bundle) */}
+              {error.message.includes("question limit") ? error.message : "Something went wrong reaching the model."}{" "}
               <button onClick={() => regenerate()} className="underline">Try again</button>
             </p>
           )}

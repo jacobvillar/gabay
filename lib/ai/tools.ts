@@ -1,8 +1,21 @@
 /** The retrieval tool. The model decides when to call it (RAG as a tool call). */
-import { tool } from "ai";
+import { tool, type ModelMessage } from "ai";
 import { z } from "zod";
 import { retrieve, type Source } from "@/lib/rag/retrieval";
 import { logger } from "@/lib/observability/logger";
+
+/**
+ * Searches already made since the user's latest message. `messages` holds the whole chat, so
+ * counting all of it would spend the budget on earlier questions and block every follow-up.
+ */
+export function searchesThisTurn(messages: ModelMessage[]): number {
+  let n = 0;
+  for (let i = messages.length - 1; i >= 0 && messages[i].role !== "user"; i--) {
+    const m = messages[i];
+    if (m.role === "assistant" && Array.isArray(m.content)) n += m.content.filter((p) => p.type === "tool-call").length;
+  }
+  return n;
+}
 
 export const searchKnowledgeBase = tool({
   description:
@@ -24,9 +37,7 @@ export const searchKnowledgeBase = tool({
   execute: async ({ query, agency }, { messages }): Promise<{ sources: Source[]; note?: string }> => {
     // Search budget, enforced here because Groq rejects toolChoice "none" for gpt-oss.
     // Without it, a model unhappy with the passages searches until the step cap and never answers.
-    const prior = messages
-      .flatMap((m) => (m.role === "assistant" && Array.isArray(m.content) ? m.content : []))
-      .filter((p) => p.type === "tool-call").length;
+    const prior = searchesThisTurn(messages);
     if (prior >= 2) {
       return { sources: [], note: "Search limit reached. Do not search again. Answer now from the passages already returned; say plainly what they do not cover." };
     }

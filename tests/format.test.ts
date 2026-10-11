@@ -11,6 +11,11 @@ test("strips citation tokens and stray HTML list tags", () => {
   assert.equal(cleanAnswer("Five days【2†L1-L4】.<br>Paid leave"), "Five days. Paid leave");
 });
 
+test("keeps leading indentation so nested lists stay nested", () => {
+  const md = "1. Compute the total:\n   - basic salary only\n   - exclude  overtime";
+  assert.equal(cleanAnswer(md), "1. Compute the total:\n   - basic salary only\n   - exclude overtime");
+});
+
 test("leaves Markdown links and [n] markers alone", () => {
   const md = "See [DOLE](https://www.dole.gov.ph) and [1].";
   assert.equal(cleanAnswer(md), md);

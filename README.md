@@ -42,21 +42,25 @@ renders the documents and pages it used.
   large SSS charter doesn't crowd out the other handbooks.
 - **Model fallback.** If Groq rate-limits `gpt-oss-120b`, the request retries once on `gpt-oss-20b`
   (a separate free-tier quota).
-- **Bounded tool loop.** At most two searches per answer, enforced inside the tool, so the model
-  always ends with a written answer.
+- **Bounded tool loop.** At most two searches per question, enforced inside the tool, so the model
+  always ends with a written answer. Follow-up questions get their own two searches.
+- **Untrusted history.** `/api/chat` keeps only user and assistant text from the browser (no
+  client system messages or tool outputs), at most 20 messages of 4,000 characters each.
+- **Per-visitor limit.** 20 questions an hour per IP, so one person or script can't spend the
+  shared Groq daily quota. Counted in server memory: approximate, but free and setup-free.
 
 ## What's Inside
 
 | Path | What it holds |
 | --- | --- |
 | [`app/`](app) | Next.js App Router — the chat UI (`page.tsx`) and the streaming RAG API (`api/chat/route.ts`) |
-| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool), `rag/` (chunking, hybrid dense + keyword retrieval), `prompts/`, `observability/` |
+| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool + history sanitizing), `rag/` (chunking, hybrid dense + keyword retrieval), `prompts/`, `observability/` |
 | [`components/`](components) | `App` (sidebar: New chat, Search chats, Documents, Recents with Rename/Delete), `Chat`, `Message`, `Sources`, `EmptyState`, `Logo` |
 | [`scripts/seed.ts`](scripts/seed.ts) | Parse `public/docs/*.pdf` per page → chunk → upsert to Upstash (which embeds server-side) |
 | [`public/docs/`](public/docs) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG), also served so each citation opens its exact page |
 | [`evals/`](evals) | Demo questions for local iteration |
 | [`docs/`](docs/index.md) | Architecture, ADRs, setup, and security notes |
-| [`deliverables/`](deliverables) | Reflection (md + 1-page PDF), submission map, demo questions |
+| [`deliverables/`](deliverables) | Reflection (md + 2-page PDF), submission map, demo questions |
 
 ## Quick start
 
