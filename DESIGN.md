@@ -1,26 +1,34 @@
 # DESIGN.md — Gabay UI
 
-Onyx-inspired design language: a dark left rail, a light chat canvas, one indigo accent.
+Onyx-inspired design language: dark, monochrome, one type family, a collapsible left rail.
 
 ## Tokens (`app/globals.css`)
+Dark, monochrome, Onyx-matched (sampled from cloud.onyx.app). One family: Hanken Grotesk.
 | Token | Value | Use |
 | --- | --- | --- |
-| `--sidebar` | `#0d0f13` | dark left rail |
-| `--canvas` | `#ffffff` | chat background |
-| `--accent` | `#6d4aff` | brand / buttons / citation markers |
-| `--accent-soft` | `#efeaff` | chip hover |
-| `--user-bubble` | `#f1f2f5` | user message |
-| `--border` | `#e5e7eb` | hairlines |
+| `--bg` | `#19191e` | chat canvas |
+| `--sidebar` | `#1d1d23` | left rail |
+| `--panel` / `--panel-hover` | `#26262d` / `#2f2f37` | composer, chips, hover + active rows |
+| `--border` | `#33333c` | hairlines |
+| `--fg` | `#fafafa` | primary text |
+| `--fg-muted` | `#9a9aa6` | secondary text, labels, placeholders (≥4.5:1 on rail and canvas) |
+| `--fg-faint` | `#6c6c77` | disabled glyphs and borders only — fails 4.5:1, never for text |
+| `--accent` / `--accent-fg` | `#fafafa` / `#19191e` | primary (send) button |
 
 ## Anatomy
-- **Sidebar** (`components/App.tsx`, Onyx-style): Gabay mark + wordmark, "New chat", collapsible "Documents" (links to each agency), and "Recents" saved in the browser (localStorage, last 20 chats — no accounts or server storage). Hidden
-  under `md` (mobile-friendly — stretch goal).
-- **Empty state** (`EmptyState.tsx`): centered greeting + 4 suggested-prompt chips (stretch goal).
+- **Sidebar** (`components/App.tsx`, Onyx-style): logo + wordmark with a collapse toggle; collapses
+  to a 64px icon rail (logo becomes the expand button; icon buttons get `aria-label` + tooltip).
+  Items: New chat · Search chats (filters Recents; Esc closes) · Documents (opens each PDF) ·
+  Recents, each with a "…" menu (Rename inline, Delete with a confirm click). Collapsed state + last 20 chats persist in localStorage. 200ms width transition, off
+  for reduced motion and on first paint. One icon family (Lucide geometry, 2px stroke, inline).
+  Hidden under `md`.
+- **Empty state** (`EmptyState.tsx`): centered greeting + 4 suggested-prompt chips.
 - **Messages** (`Message.tsx`): user = right-aligned bubble; assistant = avatar + prose +
   `Sources`. Inline `[n]` markers map to the sources list.
-- **Sources** (`Sources.tsx`): `[n] document · agency · p.N`, linked to `source_url`.
+- **Sources** (`Sources.tsx`): `[n] agency · p.N` chips, one per document page, title on hover;
+  each opens the PDF at that page (`/docs/<file>#page=N`).
 - **Composer** (`Chat.tsx`): rounded auto-grow textarea, Enter to send, Shift+Enter for newline,
-  disabled while streaming. Legal-info disclaimer underneath.
+  disabled while streaming.
 
 ## Fidelity note
 This matches Onyx's *design language*, not a pixel copy of a specific screen. To tighten to 1:1,

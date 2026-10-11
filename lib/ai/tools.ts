@@ -12,8 +12,16 @@ export const searchKnowledgeBase = tool({
     "Do not answer such questions from general knowledge — use this tool.",
   inputSchema: z.object({
     query: z.string().describe("A focused search query derived from the user's question."),
+    agency: z
+      .enum(["DOLE", "SSS", "PhilHealth", "Pag-IBIG"])
+      .optional()
+      .describe(
+        "Limit the search to one agency's handbook when the question clearly belongs to it " +
+          "(13th-month pay, leave, holiday pay, wages → DOLE; SSS loans, contributions, maternity, " +
+          "retirement claims → SSS; Konsulta → PhilHealth; Pag-IBIG loans → Pag-IBIG). Omit if unsure.",
+      ),
   }),
-  execute: async ({ query }, { messages }): Promise<{ sources: Source[]; note?: string }> => {
+  execute: async ({ query, agency }, { messages }): Promise<{ sources: Source[]; note?: string }> => {
     // Search budget, enforced here because Groq rejects toolChoice "none" for gpt-oss.
     // Without it, a model unhappy with the passages searches until the step cap and never answers.
     const prior = messages
@@ -22,8 +30,8 @@ export const searchKnowledgeBase = tool({
     if (prior >= 2) {
       return { sources: [], note: "Search limit reached. Do not search again. Answer now from the passages already returned; say plainly what they do not cover." };
     }
-    const sources = await retrieve(query);
-    logger.info("retrieval", { query, hits: sources.length, call: prior + 1 });
+    const sources = await retrieve(query, undefined, agency);
+    logger.info("retrieval", { query, agency, hits: sources.length, call: prior + 1 });
     return prior === 1
       ? { sources, note: "This was your last search. Answer now from all passages returned so far." }
       : { sources };

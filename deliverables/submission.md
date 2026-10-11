@@ -32,10 +32,17 @@
   saved in the visitor's browser (no accounts, no server storage).
 - **No public admin upload, on purpose:** it would let anyone poison the index. New documents go
   through `npm run seed`.
+- **Citations open the source:** each chip opens the PDF at the cited page.
+- **Hybrid retrieval:** dense + BM25 keyword search fused with reciprocal rank fusion, with an
+  optional per-agency filter to counter the SSS-heavy corpus. Keyword search keeps answering if the
+  vector index is unavailable.
+- **Graceful degradation:** a fallback chat model on rate limits, and a two-search budget so every
+  reply ends with a written answer.
+- **Chat management:** Search chats, plus Rename and Delete on each recent chat.
 - **Hardened API:** `/api/chat` rejects malformed requests with 400 and caps history at 20 messages;
   the UI shows model errors with a retry.
-- **Checks:** `npm run typecheck && npm test && npm run build` pass (tests cover chunking + the
-  400 path); the build passes with no env vars.
+- **Checks:** `npm run typecheck && npm test && npm run build` pass (10 tests: chunking, the
+  400 path, keyword search, rank fusion, and the agency filter); the build passes with no env vars.
 
 ## Weekly outcomes addressed
 

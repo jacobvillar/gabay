@@ -51,7 +51,7 @@ export function Chat({ id, initialMessages, onSave }: ChatProps) {
         rows={1}
         aria-label="Ask a question"
         placeholder="Ask about pay, leave, SSS, PhilHealth, Pag-IBIG…"
-        className="max-h-44 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm text-[var(--fg)] outline-none placeholder:text-[var(--fg-faint)]"
+        className="max-h-44 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm text-[var(--fg)] outline-none placeholder:text-[var(--fg-muted)]"
       />
       <button
         type="submit"
@@ -102,9 +102,6 @@ export function Chat({ id, initialMessages, onSave }: ChatProps) {
       <div className="px-4 pb-5">
         <div className="mx-auto max-w-3xl">
           {composer}
-          <p className="mt-2 text-center text-xs text-[var(--fg-faint)]">
-            General info, not legal advice. Verify with DOLE/SSS/PhilHealth/Pag-IBIG.
-          </p>
         </div>
       </div>
     </main>

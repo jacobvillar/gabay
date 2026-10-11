@@ -21,6 +21,7 @@ try {
 }
 
 const DATA_DIR = path.join(process.cwd(), "public", "docs");
+const CHUNKS_FILE = path.join(process.cwd(), "lib", "rag", "chunks.json");
 
 // Map a filename to its citation metadata. Edit when you add/rename a PDF.
 type DocMeta = { document_title: string; agency: string };
@@ -96,36 +97,40 @@ async function main() {
     process.exit(1);
   }
 
-  const index = new Index({ url: config.upstashUrl(), token: config.upstashToken() });
-  await index.reset();
-  console.log("  (index reset)");
-  let id = 0;
-  let total = 0;
-
+  // 1) Extract + chunk everything first.
+  const records: ChunkMetadata[] = [];
   for (const file of files) {
     const meta = metaFor(file);
     const pages = await pagesOf(path.join(DATA_DIR, file));
-
-    const records: ChunkMetadata[] = [];
+    const before = records.length;
     pages.forEach((text, i) => {
-      for (const c of chunkText(text)) {
-        records.push({ text: c, page: i + 1, ...meta });
-      }
+      for (const c of chunkText(text)) records.push({ text: c, page: i + 1, ...meta });
     });
-
-    // Upsert in batches; Upstash embeds `data` server-side with the index's model.
-    const BATCH = 100;
-    for (let i = 0; i < records.length; i += BATCH) {
-      const batch = records.slice(i, i + BATCH);
-      await index.upsert(
-        batch.map((r) => ({ id: ++id, data: r.text, metadata: r })),
-      );
-    }
-
-    console.log(`  ${file} -> ${records.length} chunks (${pages.length} pages) [${meta.agency}]`);
-    total += records.length;
+    console.log(`  ${file} -> ${records.length - before} chunks (${pages.length} pages) [${meta.agency}]`);
   }
 
+  // 2) Local copy for the keyword fallback (lib/rag/keyword.ts). Written before any network
+  //    call, so the app can still answer if the Upstash upsert below fails.
+  fs.writeFileSync(CHUNKS_FILE, JSON.stringify(records));
+  console.log(`  wrote ${path.relative(process.cwd(), CHUNKS_FILE)}`);
+
+  // 3) Upsert to Upstash, which embeds `data` server-side with the index's model.
+  //    Overwrite ids 1..N in place, then delete leftovers. Never reset first: a failed run
+  //    (e.g. Upstash's 10k writes/day free-tier cap) would otherwise leave the live index empty.
+  const index = new Index({ url: config.upstashUrl(), token: config.upstashToken() });
+  const before = (await index.info()).vectorCount;
+  const BATCH = 100;
+  for (let i = 0; i < records.length; i += BATCH) {
+    await index.upsert(
+      records.slice(i, i + BATCH).map((r, j) => ({ id: i + j + 1, data: r.text, metadata: r })),
+    );
+  }
+  const id = records.length;
+  const total = records.length;
+  if (before > id) {
+    const stale = Array.from({ length: before - id }, (_, i) => id + 1 + i);
+    for (let i = 0; i < stale.length; i += 1000) await index.delete(stale.slice(i, i + 1000));
+  }
   console.log(`Done. Upserted ${total} chunks from ${files.length} document(s).`);
 }
 

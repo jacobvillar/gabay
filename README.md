@@ -8,8 +8,8 @@ Pag-IBIG — with streaming answers and cited sources.**
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v5-black)](https://sdk.vercel.ai)
 
-> Week 14.3 "Ship Your Own RAG" graded mini-project — turning a workshop RAG bot into a public,
-> domain-specific product. **Live:** [gabay-fint.vercel.app](https://gabay-fint.vercel.app)
+> A public, domain-specific RAG assistant built for the "Ship Your Own RAG" project.
+> **Live:** [gabay-fint.vercel.app](https://gabay-fint.vercel.app)
 
 ## Overview
 
@@ -32,13 +32,26 @@ Retrieval is a **tool call** (`searchKnowledgeBase`), not context prepended to e
 model reaches for the handbooks only when a benefit question warrants it, and every factual answer
 renders the documents and pages it used.
 
+**What keeps answers grounded and available**
+
+- **Citations open the source.** Each source chip links to the PDF at that page (`/docs/<file>#page=N`).
+- **Hybrid retrieval.** Every search runs dense (Upstash) and BM25 keyword search (over
+  `lib/rag/chunks.json`, written by `npm run seed`) and fuses them with reciprocal rank fusion. If
+  the vector index is empty or unreachable, the keyword side still answers.
+- **Per-agency filter.** The tool can scope a search to DOLE, SSS, PhilHealth or Pag-IBIG, so the
+  large SSS charter doesn't crowd out the other handbooks.
+- **Model fallback.** If Groq rate-limits `gpt-oss-120b`, the request retries once on `gpt-oss-20b`
+  (a separate free-tier quota).
+- **Bounded tool loop.** At most two searches per answer, enforced inside the tool, so the model
+  always ends with a written answer.
+
 ## What's Inside
 
 | Path | What it holds |
 | --- | --- |
 | [`app/`](app) | Next.js App Router — the chat UI (`page.tsx`) and the streaming RAG API (`api/chat/route.ts`) |
-| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool), `rag/` (chunking + retrieval), `prompts/`, `observability/` |
-| [`components/`](components) | `Chat`, `Message`, `Sources`, `EmptyState`, `Logo` |
+| [`lib/`](lib) | `config` (secrets), `ai/` (model boundary + retrieval tool), `rag/` (chunking, hybrid dense + keyword retrieval), `prompts/`, `observability/` |
+| [`components/`](components) | `App` (sidebar: New chat, Search chats, Documents, Recents with Rename/Delete), `Chat`, `Message`, `Sources`, `EmptyState`, `Logo` |
 | [`scripts/seed.ts`](scripts/seed.ts) | Parse `public/docs/*.pdf` per page → chunk → upsert to Upstash (which embeds server-side) |
 | [`public/docs/`](public/docs) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG), also served so each citation opens its exact page |
 | [`evals/`](evals) | Demo questions for local iteration |
@@ -51,7 +64,7 @@ renders the documents and pages it used.
 npm install
 cp .env.example .env.local          # fill in the 3 keys (see below)
 # add the DOLE/SSS/PhilHealth/Pag-IBIG PDFs to public/docs/
-npm run seed                        # index the corpus (prints chunk counts)
+npm run seed                        # chunk the PDFs, write lib/rag/chunks.json, upsert to Upstash
 npm run dev                         # http://localhost:3000
 ```
 
@@ -64,6 +77,9 @@ npm run dev                         # http://localhost:3000
 | `UPSTASH_VECTOR_REST_TOKEN` | Same index (read-write token) |
 
 Full walkthrough: [`docs/development/setup.md`](docs/development/setup.md).
+
+> Upstash's free tier allows 10,000 writes per day and one seed is about 1,300, so avoid repeated
+> re-seeds. The seed overwrites chunks in place and prunes leftovers; it never empties the index first.
 
 ## Deploy (Vercel)
 

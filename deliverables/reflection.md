@@ -26,8 +26,9 @@ retrieval. It runs publicly on Vercel at [gabay-fint.vercel.app](https://gabay-f
 | Corpus | DOLE Handbook, SSS Citizens Charter, PhilHealth Konsulta circular, Pag-IBIG briefer | Public-domain PH government works — legal to serve publicly; a high-value domain where base LLMs are unreliable, so retrieval + citations visibly add value |
 | Generation | Groq, open-weight GPT-OSS 120B | Free tier, no OpenAI key, supports tool calling, deploys on Vercel |
 | Embeddings | Upstash built-in model (text in, vectors server-side) | Removes the embedding API key entirely; one fewer secret |
-| Chunking | Per-page extraction → sentence/paragraph-aware packing to ~1000 chars, 150 overlap | Per-page parsing preserves real **page numbers**; sentence-aware packing keeps rules intact |
+| Chunking | Per-page extraction (PDF ligature repair) → sentence/paragraph-aware packing to ~1000 chars, 150 overlap | Per-page parsing preserves real **page numbers**; sentence-aware packing keeps rules intact |
 | Metadata | `document_title`, `agency`, `page`, `source_url` | Makes citations readable and disambiguates across four agencies |
+| Retrieval | Hybrid: dense + BM25 keyword, reciprocal rank fusion, optional per-agency filter; fallback chat model; two-search cap | Keyword catches exact terms dense misses; the agency filter counters the SSS skew; free-tier limits (10k writes, 200k tokens/day) degrade answers instead of breaking them |
 | Interface | Onyx-style sidebar: New chat, collapsible Documents, Recents saved in the browser (localStorage) | No accounts or server storage — history stays on the visitor's device. Deliberately no admin upload: on a public app it would let anyone poison the index; new docs go through `npm run seed` |
 
 ## The trickiest decision
@@ -42,13 +43,12 @@ and renders the exact source pages — something a raw model gets subtly wrong w
 
 ## What it does badly
 
-Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, so per-agency balance is the main remaining lever. These are quality, not correctness, issues — but they are real.
+Retrieval balance. Because the SSS charter dominates the index, some non-SSS queries can surface less-relevant SSS passages; structure-aware chunking keeps each passage coherent, and the per-agency filter helps when the model uses it, but unscoped searches still lean SSS. These are quality, not correctness, issues — but they are real. The free tiers are the other weak spot: about 10-15 full answers a day before the smaller fallback model takes over, and it is noticeably less faithful.
 
 ## What I'd do with another week
 
-1. **Rebalance the corpus** — trim the SSS charter to its benefits sections or add per-agency
-   retrieval filters.
-2. **Hybrid retrieval + reranking** — combine dense search with keyword matching and a reranker.
+1. **Rebalance the corpus** — trim the SSS charter to its benefits sections (the per-agency filter is in place).
+2. **Cross-encoder reranking** — rerank the fused dense + keyword results before they reach the model.
 3. **Eval harness** — score faithfulness and context-relevance on the demo-question set.
 4. **Inline citation mapping** — true `[1]`/`[2]` markers tied to the sources panel.
 

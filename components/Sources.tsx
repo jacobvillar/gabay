@@ -8,7 +8,7 @@ export function Sources({ sources }: { sources: Source[] }) {
   );
   return (
     <div className="mt-4 border-t border-[var(--border)] pt-3">
-      <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--fg-faint)]">
+      <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--fg-muted)]">
         Sources
       </p>
       <ol className="flex flex-wrap gap-2">

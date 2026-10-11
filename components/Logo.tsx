@@ -1,22 +1,17 @@
-"use client";
-import { useId } from "react";
-
-/** Gabay brand mark: a gradient badge with a guiding star (gabay = "guide"). */
+/**
+ * Gabay mark: a compass rose (gabay = "guide"). The north needle is solid, the rest recede,
+ * so the mark literally points the way. Monochrome via currentColor, like the rest of the UI.
+ * Keep in sync with app/icon.svg (the favicon).
+ */
 export function Logo({ size = 24 }: { size?: number }) {
-  const id = useId();
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8b6dff" />
-          <stop offset="1" stopColor="#4f8cff" />
-        </linearGradient>
-      </defs>
-      <rect width="32" height="32" rx="9" fill={`url(#${id})`} />
-      <path
-        d="M16 5 Q17.3 14.7 27 16 Q17.3 17.3 16 27 Q14.7 17.3 5 16 Q14.7 14.7 16 5 Z"
-        fill="#fff"
-      />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="currentColor" aria-hidden className="shrink-0 text-[var(--fg)]">
+      <g opacity="0.42">
+        <path d="M30.5 16 20 20.2 17.6 16 20 11.8Z" />
+        <path d="M16 30.5 11.8 20 16 17.6 20.2 20Z" />
+        <path d="M1.5 16 12 11.8 14.4 16 12 20.2Z" />
+      </g>
+      <path d="M16 1.5 20.2 12 16 14.4 11.8 12Z" />
     </svg>
   );
 }

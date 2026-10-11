@@ -1,17 +1,16 @@
 # HANDOFF — Gabay (Week 14.3 "Ship Your Own RAG")
 
-> For a fresh session with no prior context. Read this first, then execute the **Goal** below.
+> Context for a fresh session on this repo. Read this first.
 
-## Goal for this session
+## Current state (2026-10-11)
 
-1. Run **`/agent-skills:review`** on the repo (code quality / correctness / security).
-2. Apply any warranted fixes (use **`/agent-skills:build`** for planned fixes if needed).
-3. Run **`/agent-skills:ship`** (pre-launch checklist).
-4. **Full rubric audit** — verify *every* grading criterion below is met, fix gaps, and report a
-   pass/fail table. Do not assume; verify with commands + the live URL.
+Deployed and working at https://gabay-fint.vercel.app. Recent work: request validation and error
+surfacing, PDF-page citations, hybrid dense + keyword (BM25) retrieval with a per-agency filter, a fallback chat model, a
+two-search tool budget, PDF ligature repair, and an Onyx-style sidebar (collapsible rail, Search
+chats, Documents, Recents with Rename/Delete).
 
-Keep changes minimal and correct (ponytail mode). This is a finished, deployed project — the job is
-to verify and harden for a 100/100, not to rebuild.
+**Before relying on the live app:** confirm the Upstash index holds 1,305 vectors (`npm run seed`
+once if it is empty) and that Groq's daily quota is not exhausted (see Reliability notes).
 
 ## What Gabay is
 
@@ -52,17 +51,32 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 ## Sidebar (Onyx-style, shipped 2026-10-11)
 
 - **New chat** → fresh conversation (`key={activeId}` remounts `useChat`).
-- **Documents** → native `<details>` toggle, collapsed by default; rows link to each agency site.
-- **Recents** → last 20 chats in `localStorage` (`gabay:chats`), saved when each answer finishes;
+- **Collapse** → toggle collapses to a 64px icon rail (logo expands it); state persists.
+- **Search chats** → filters Recents; Esc closes.
+- **Documents** → collapsed by default; rows open each PDF from `public/docs/`.
+- **Recents** → "…" menu per chat (Rename, Delete with confirm); last 20 chats in `localStorage` (`gabay:chats`), saved when each answer finishes;
   try/catch so private mode still works (just unsaved). No accounts, no server storage.
 - **Intentionally omitted:** Agents, Projects, Search, **Admin panel / upload**. A public, no-auth
   upload would let anyone poison the index. Add docs via `public/docs/` + `scripts/seed.ts` + `npm run seed`.
+
+## Reliability notes
+
+- **Upstash free tier: 10k writes/day.** One seed is about 1,300 writes. On 2026-10-11 repeated
+  re-seeds hit the cap and a reset-first seed left the index empty; the seed now writes in place
+  and prunes leftovers, and writes `lib/rag/chunks.json` first.
+- **Hybrid retrieval.** `retrieve()` fuses Upstash dense results with BM25 over `chunks.json`
+  (reciprocal rank fusion), optionally filtered by `agency`. If the vector side is empty or fails,
+  keyword results alone keep answers grounded. Logged as `vector search empty`.
+- **Groq free tier: 200k tokens/day for gpt-oss-120b** (about 10-15 answers). On 429 the provider
+  retries on gpt-oss-20b, which is noticeably less faithful. Dev Tier removes the limit.
+- **Tool loop.** `searchKnowledgeBase` allows two searches, then returns "answer now"; `MAX_STEPS`
+  is 4. `toolChoice: "none"` and `activeTools: []` both fail on Groq for gpt-oss.
 
 ## Secrets / env
 
 Three server-only vars, set in `.env.local` (local, gitignored) **and** Vercel Production:
 `GROQ_API_KEY`, `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN`.
-⚠️ The Groq key was pasted in a prior chat — **rotate it** at console.groq.com after grading.
+⚠️ The Groq key was pasted in a prior chat — **rotate it** at console.groq.com.
 
 ## Corpus / index state (already seeded)
 
@@ -80,9 +94,7 @@ curl -s -N https://gabay-fint.vercel.app/api/chat -H 'content-type: application/
 ```
 Expect `data:` events including `tool-output-available` and streamed `text-delta`, no `error`.
 
-## Rubric to audit (target: 100/100)
-
-Final checklist — verify each:
+## Requirements checklist
 - [ ] Deployed publicly on Vercel (gabay-fint.vercel.app reachable in incognito)
 - [ ] Streams answers via Vercel AI SDK
 - [ ] RAG implemented as a **tool call** (not always-prepended)
