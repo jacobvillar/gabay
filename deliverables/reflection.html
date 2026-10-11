@@ -33,50 +33,24 @@
     <a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a></div>
 </header>
 
-<h2><span class="n">1</span>Overview</h2>
-<p>Gabay answers questions about <strong>Philippine statutory worker benefits</strong> (13th-month pay, leave, SSS, PhilHealth, Pag-IBIG) only from official government handbooks, and every answer links to the exact page it came from. Built with <strong>Next.js and the Vercel AI SDK</strong>, retrieval as a <strong>tool call</strong>, <strong>Groq</strong> GPT-OSS 120B, and <strong>Upstash Vector</strong>.</p>
+<h2><span class="n">1</span>Corpus and why</h2>
+<p>Four official Philippine government documents: the DOLE Handbook on Workers’ Statutory Monetary Benefits, the SSS Citizens Charter, a PhilHealth Konsulta circular, and a Pag-IBIG programs briefer (1,305 chunks). Workers ask high-stakes questions here (13th-month pay, leave, contributions, loans), general chatbots get the figures subtly wrong, and the documents are public, so every answer can link to the exact page it came from. Pages are extracted one at a time with PDF ligature repair, packed on sentence boundaries into ~1,000-character chunks with 150 overlap, and tagged with title, agency, page and source URL. Retrieval is hybrid (dense + BM25 keyword, top 8), exposed to Groq’s GPT-OSS 120B as a tool call.</p>
 
-<h2><span class="n">2</span>Key decisions</h2>
-<table>
-<tr><th style="width:13%">Decision</th><th style="width:40%">Choice</th><th>Why</th></tr>
-<tr><td>Corpus</td><td>Four official handbooks: DOLE, SSS, PhilHealth, Pag-IBIG (1,305 chunks)</td><td>Public documents I can serve and link to, in exactly the domain where general chatbots get figures subtly wrong</td></tr>
-<tr><td>Chunking</td><td>Per page, packed on sentence boundaries to ~1,000 chars with 150 overlap; PDF ligature repair</td><td>Citations carry real page numbers, and no rule is cut mid-sentence</td></tr>
-<tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Every citation opens the PDF at its page; <code>agency</code> steers retrieval</td></tr>
-<tr><td>Embedding</td><td>OpenAI <code>text-embedding-3-small</code> (1,536 dims, cosine), hosted inside Upstash Vector</td><td>Upstash embeds on both upsert and query, so there is no embedding key or pipeline to run, and documents and questions always share one model</td></tr>
-<tr><td>Retrieval</td><td>Hybrid dense + BM25 keyword, reciprocal rank fusion, optional agency boost, top 8</td><td>Keyword search catches exact terms that embeddings blur; the boost favors one handbook without hiding the others</td></tr>
-<tr><td>Generation</td><td>GPT-OSS 120B on Groq, 20B fallback; at most two searches per question</td><td>Free tool calling; the cap forces a written answer instead of endless searching</td></tr>
-<tr><td>Guardrails</td><td>Every figure must appear in a retrieved passage; off-topic questions declined</td><td>A wrong peso amount is worse than “the handbook doesn’t say”</td></tr>
-<tr><td>Interface</td><td>No accounts and no upload; chats stay in the visitor’s browser</td><td>An open upload would let anyone poison a public index</td></tr>
-</table>
+<h2><span class="n">2</span>The trickiest decision</h2>
+<p>How far to trust the model. Making retrieval a tool lets the model skip it for small talk, but also lets it skip or misdirect a search when it shouldn’t. So the prompt is strict (benefit questions must search, every figure must come from a passage, say what is missing) and retrieval forgives the model’s mistakes. When the model guessed the wrong agency for a service-incentive-leave question, a hard agency filter hid the DOLE answer entirely, so the agency became a ranking boost instead of a filter.</p>
 
 <h2><span class="n">3</span>What it does well</h2>
 <p>It answers a benefit question with the rule, the computation, and a page citation the user can open. “How is 13th-month pay computed?” returns total basic salary ÷ 12, with the handbook’s exclusions, cited to DOLE pp. 50–54. When the handbooks are silent, it says so instead of guessing a figure.</p>
 
 <h2><span class="n">4</span>What it does badly</h2>
-<p><strong>The corpus is lopsided.</strong> The SSS charter is 1,052 of the 1,305 chunks and mostly procedure, so a question that doesn’t name an agency surfaces SSS passages first. The agency boost softens this; trimming the charter to its benefit sections is the real fix.</p>
-<p><strong>Quality drops silently under load.</strong> Groq’s free tier gives the 120B model 200,000 tokens a day, and each answer re-sends its retrieved passages on every step: one measured answer used about 14,000 tokens, so roughly 10–15 full answers a day. After that the smaller 20B model answers, it is less faithful, and the user cannot tell which model they got.</p>
+<p>The corpus is lopsided. The SSS charter is 1,052 of the 1,305 chunks and mostly procedure, so questions that don’t name an agency surface SSS pages first. Scoring retrieval on six benefit questions, five had a relevant passage in the top 8, four at rank 1; but the holiday-pay question ranked an SSS page above the DOLE answer, and a PhilHealth claim question found nothing useful because the circular covers Konsulta packages, not claims. The agency boost softens the ranking; the real fix is curating the corpus.</p>
 
-<div class="page-break">
-<h2><span class="n">5</span>The trickiest decision</h2>
-<p>How far to trust the model. Making retrieval a tool lets the model skip it for small talk, but also lets it skip or misdirect a search when it shouldn’t. So the prompt is strict (benefit questions must search, answers come only from passages, say what is missing) and retrieval forgives the model’s mistakes. When the model guessed the wrong agency for a service-incentive-leave question, a hard filter hid the DOLE answer entirely; the agency became a boost instead.</p>
-
-<h2><span class="n">6</span>How I tested it</h2>
-<p>I ran 10 questions against production, covering all four agencies, Taglish, and an off-topic probe, and read every answer. That surfaced failures only visible end to end: answers that ended empty because the model kept searching, PDF text broken 2,316 times (“bene fi t”), figures from the model’s memory, an off-topic question answered, and the agency filter above. A code review before submission found one more that every fresh-chat test missed: in a multi-turn chat, follow-up questions could not search at all, because the search cap counted the whole conversation. Each fix was re-run on the same questions, and the seed verifies itself with a known-answer probe.</p>
-<p>I also scored retrieval on its own. For six benefit questions, five had a relevant passage in the top 8 without any agency boost: four at rank 1, one at rank 2. The miss was a PhilHealth claim question, where SSS procedure pages crowded the list. With the boost, PhilHealth pages took ranks 1–6, but that circular covers outpatient packages, not claim filing, so the real gap is coverage, not ranking.</p>
-
-<h2><span class="n">7</span>What I’d do with another week</h2>
+<h2><span class="n">5</span>What I’d do with another week</h2>
 <ol>
-  <li><strong>Automated evals:</strong> turn the 10 questions, plus multi-turn cases, into a scored golden set (faithfulness, context relevance) that runs on every prompt or retrieval change.</li>
-  <li><strong>Rebalance the corpus:</strong> trim the SSS charter to its benefit sections.</li>
+  <li><strong>Automated evals:</strong> turn my 10 test questions, plus multi-turn cases, into a scored golden set that runs on every prompt or retrieval change.</li>
+  <li><strong>Rebalance the corpus:</strong> trim the SSS charter to its benefit sections and add PhilHealth’s claims guide.</li>
   <li><strong>Reranking:</strong> a cross-encoder over the fused results.</li>
-  <li><strong>Cache the suggested questions:</strong> exact-match only, cleared on re-seed, to stretch the scarce daily quota.</li>
-  <li><strong>Inline citations:</strong> [1]/[2] markers tied to the sources panel.</li>
+  <li><strong>Cache the suggested questions</strong> to stretch Groq’s free daily quota (about 10–15 full answers).</li>
 </ol>
-
-<h2><span class="n">8</span>References</h2>
-<div class="refs">
-<p>Live app <a href="https://gabay-fint.vercel.app">gabay-fint.vercel.app</a> · repository <a href="https://github.com/jacobvillar/gabay">github.com/jacobvillar/gabay</a> · corpus: DOLE, SSS, PhilHealth and Pag-IBIG official handbooks.</p>
-</div>
-</div>
 
 </body></html>

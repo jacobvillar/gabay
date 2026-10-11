@@ -112,7 +112,7 @@ Expect `data:` events including `tool-output-available` and streamed `text-delta
 - [x] Sources visible + readable under answers
 - [x] Non-trivial, well-chosen corpus
 - [x] Repo has README + correct setup info
-- [x] Reflection specific + honest (`deliverables/reflection.pdf`, 2 pages)
+- [x] Reflection specific + honest (`deliverables/reflection.pdf`, one page)
 - [x] Secrets not in client bundle (keys server-only; `next build` passes with no env)
 - [x] Meaningful empty state
 

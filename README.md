@@ -59,7 +59,7 @@ renders the documents and pages it used.
 | [`public/docs/`](public/docs) | The corpus PDFs (DOLE / SSS / PhilHealth / Pag-IBIG), also served so each citation opens its exact page |
 | [`evals/`](evals) | Demo questions for local iteration |
 | [`docs/`](docs/index.md) | Architecture, ADRs, setup, and security notes |
-| [`deliverables/`](deliverables) | Reflection (md + 2-page PDF), submission map, demo questions |
+| [`deliverables/`](deliverables) | Reflection (md + one-page PDF), submission map, demo questions |
 
 ## Quick start
 

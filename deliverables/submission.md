@@ -6,10 +6,14 @@
 | --- | --- |
 | **Live app** | <https://gabay-fint.vercel.app> |
 | **Repository** | <https://github.com/jacobvillar/gabay> |
-| **Reflection** | [reflection.pdf](reflection.pdf) (2 pages) |
+| **Reflection** | [reflection.pdf](reflection.pdf) (one page) |
 | **Demo questions** | [demo-questions.md](demo-questions.md) |
 
 Upload package `gabay-submission.zip` contains the reflection, this file, and the demo questions.
+
+**Change from the starter:** the PDFs live in `public/docs/` instead of `data/`. Next.js serves that
+folder publicly, so every source chip opens the cited PDF at its exact page; the seed script reads
+from the same folder.
 
 ## Requirements
 
@@ -23,7 +27,7 @@ Upload package `gabay-submission.zip` contains the reflection, this file, and th
 | README and setup info | Setup, env vars, seeding, deploy | `README.md`, `docs/development/setup.md` |
 | Secrets not in the client bundle | Keys read server-side only; the build passes with no env set | `lib/config.ts` |
 | Meaningful empty state | Greeting plus four suggested questions | `components/EmptyState.tsx` |
-| Specific, honest reflection | Decisions, strengths, weaknesses, testing, next steps | [reflection.pdf](reflection.pdf) |
+| Specific, honest reflection | Corpus, trickiest decision, one strength, one weakness, next week | [reflection.pdf](reflection.pdf) |
 
 ## Beyond the checklist
 
@@ -50,11 +54,11 @@ Upload package `gabay-submission.zip` contains the reflection, this file, and th
 | Outcome | Evidence |
 | --- | --- |
 | Real corpus → usable knowledge base | `scripts/seed.ts`, 1,305 chunks with page metadata |
-| Chunking, metadata, embedding decisions | Reflection §2 |
+| Chunking, metadata, embedding decisions | Reflection §1 |
 | Next.js + Vercel AI SDK streaming chat | `app/api/chat/route.ts` |
 | Retrieval as a tool call | `lib/ai/tools.ts` |
 | Public deploy with correct env | Live app; env set in Vercel |
-| Honest reflection | Reflection §3–§7 |
+| Honest reflection | Reflection §2–§5 |
 
 ## Stack
 
