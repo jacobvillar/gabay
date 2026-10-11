@@ -43,10 +43,20 @@ Next.js 15 (App Router) · Vercel AI SDK v5 (streaming + tool-call RAG) · **Gro
 | Model boundary | `lib/ai/provider.ts` (Groq) |
 | Secrets (lazy getters) | `lib/config.ts` (`topK: 8`, `chatModel`) |
 | System prompt | `lib/prompts/system.ts` |
-| UI | `app/page.tsx`, `components/{Chat,Message,Sources,EmptyState,Logo}.tsx` |
+| UI shell + sidebar | `components/App.tsx` (New chat · Documents toggle · Recents in localStorage); `app/page.tsx` just renders it |
+| Chat UI | `components/{Chat,Message,Sources,EmptyState,Logo}.tsx` |
 | Corpus (PDFs) | `data/*.pdf` |
 | Docs | `docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `DESIGN.md`, `PRODUCT.md` |
 | Deliverables | `deliverables/` (reflection md+pdf, submission.md, demo-questions.md, zip) |
+
+## Sidebar (Onyx-style, shipped 2026-10-11)
+
+- **New chat** → fresh conversation (`key={activeId}` remounts `useChat`).
+- **Documents** → native `<details>` toggle, collapsed by default; rows link to each agency site.
+- **Recents** → last 20 chats in `localStorage` (`gabay:chats`), saved when each answer finishes;
+  try/catch so private mode still works (just unsaved). No accounts, no server storage.
+- **Intentionally omitted:** Agents, Projects, Search, **Admin panel / upload**. A public, no-auth
+  upload would let anyone poison the index. Add docs via `data/` + `scripts/seed.ts` + `npm run seed`.
 
 ## Secrets / env
 

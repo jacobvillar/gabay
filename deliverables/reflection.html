@@ -39,6 +39,7 @@ with <strong>Next.js + the Vercel AI SDK</strong> (streaming chat, retrieval exp
 <tr><td>Embeddings</td><td>Upstash built-in model</td><td>Removes the embedding API key entirely — one fewer secret</td></tr>
 <tr><td>Chunking</td><td>Per-page → sentence/paragraph-aware packing to ~1000 chars, 150 overlap</td><td>Per-page parsing preserves real <strong>page numbers</strong>; sentence-aware packing keeps rules intact</td></tr>
 <tr><td>Metadata</td><td><code>document_title</code>, <code>agency</code>, <code>page</code>, <code>source_url</code></td><td>Readable citations that disambiguate across four agencies</td></tr>
+<tr><td>Interface</td><td>Onyx-style sidebar: New chat, collapsible Documents, Recents saved in the browser</td><td>No accounts or server storage — history stays on the visitor's device. Deliberately no admin upload: on a public app it would let anyone poison the index; new docs go through <code>npm run seed</code></td></tr>
 </table>
 
 <h2>The trickiest decision</h2>

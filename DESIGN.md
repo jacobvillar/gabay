@@ -13,7 +13,7 @@ Onyx-inspired design language: a dark left rail, a light chat canvas, one indigo
 | `--border` | `#e5e7eb` | hairlines |
 
 ## Anatomy
-- **Sidebar** (`app/page.tsx`): Gabay mark + wordmark, "New chat", knowledge-base list. Hidden
+- **Sidebar** (`components/App.tsx`, Onyx-style): Gabay mark + wordmark, "New chat", collapsible "Documents" (links to each agency), and "Recents" saved in the browser (localStorage, last 20 chats — no accounts or server storage). Hidden
   under `md` (mobile-friendly — stretch goal).
 - **Empty state** (`EmptyState.tsx`): centered greeting + 4 suggested-prompt chips (stretch goal).
 - **Messages** (`Message.tsx`): user = right-aligned bubble; assistant = avatar + prose +

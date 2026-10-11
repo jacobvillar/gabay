@@ -28,6 +28,7 @@ retrieval. It runs publicly on Vercel at [gabay-fint.vercel.app](https://gabay-f
 | Embeddings | Upstash built-in model (text in, vectors server-side) | Removes the embedding API key entirely; one fewer secret |
 | Chunking | Per-page extraction → sentence/paragraph-aware packing to ~1000 chars, 150 overlap | Per-page parsing preserves real **page numbers**; sentence-aware packing keeps rules intact |
 | Metadata | `document_title`, `agency`, `page`, `source_url` | Makes citations readable and disambiguates across four agencies |
+| Interface | Onyx-style sidebar: New chat, collapsible Documents, Recents saved in the browser (localStorage) | No accounts or server storage — history stays on the visitor's device. Deliberately no admin upload: on a public app it would let anyone poison the index; new docs go through `npm run seed` |
 
 ## The trickiest decision
 

@@ -8,7 +8,8 @@
 | --- | --- |
 | Public app URL | https://gabay-fint.vercel.app |
 | GitHub repository | https://github.com/jacobvillar/gabay |
-| One-page reflection | [reflection.md](reflection.md) (export to PDF for upload) |
+| One-page reflection | [reflection.pdf](reflection.pdf) (source: [reflection.md](reflection.md)) |
+| Upload package | `gabay-submission.zip` (reflection.pdf + this file + demo questions) |
 | Demo questions | [demo-questions.md](demo-questions.md) |
 
 ## How Gabay meets each requirement
@@ -18,12 +19,23 @@
 | Deployed publicly on Vercel | https://gabay-fint.vercel.app |
 | Streams answers via the Vercel AI SDK | `app/api/chat/route.ts` → `streamText(...).toUIMessageStreamResponse()` |
 | RAG implemented as a tool call | `lib/ai/tools.ts` `searchKnowledgeBase`; model calls it (not always-prepended) |
-| Sources visible and readable under answers | `components/Sources.tsx` (doc · agency · page, linked) |
+| Sources visible and readable under answers | `components/Sources.tsx` — numbered agency · page chips, one per document page, full title on hover, linked |
 | Non-trivial, well-chosen corpus | DOLE/SSS/PhilHealth/Pag-IBIG official handbooks (`data/`) |
 | Repo includes README + correct setup info | `README.md`, `docs/development/setup.md`, `.env.example` |
 | Secrets not exposed in client bundle | Keys read server-side only via `lib/config.ts`; build passes with no env |
 | Meaningful empty state | Centered greeting + suggested-prompt chips (`components/EmptyState.tsx`) |
-| Reflection specific and honest | [reflection.md](reflection.md) |
+| Reflection specific and honest | [reflection.pdf](reflection.pdf) (one page) |
+
+## Beyond the checklist
+
+- **Onyx-style sidebar** (`components/App.tsx`): New chat, collapsible Documents, and Recents
+  saved in the visitor's browser (no accounts, no server storage).
+- **No public admin upload, on purpose:** it would let anyone poison the index. New documents go
+  through `npm run seed`.
+- **Hardened API:** `/api/chat` rejects malformed requests with 400 and caps history at 20 messages;
+  the UI shows model errors with a retry.
+- **Checks:** `npm run typecheck && npm test && npm run build` pass (tests cover chunking + the
+  400 path); the build passes with no env vars.
 
 ## Weekly outcomes addressed
 

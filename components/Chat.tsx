@@ -1,7 +1,8 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
+import type { UIMessage } from "ai";
+import { useEffect, useState } from "react";
 import { Message } from "./Message";
 import { EmptyState } from "./EmptyState";
 import { Logo } from "./Logo";
@@ -14,10 +15,22 @@ function SendIcon() {
   );
 }
 
-export function Chat() {
-  const { messages, sendMessage, status, error, regenerate } = useChat();
+type ChatProps = {
+  id: string;
+  initialMessages: UIMessage[];
+  onSave: (messages: UIMessage[]) => void;
+};
+
+export function Chat({ id, initialMessages, onSave }: ChatProps) {
+  const { messages, sendMessage, status, error, regenerate } = useChat({ id, messages: initialMessages });
   const [input, setInput] = useState("");
   const busy = status === "submitted" || status === "streaming";
+
+  // Save once each answer finishes streaming (not on every token).
+  useEffect(() => {
+    if (status === "ready" && messages.length > initialMessages.length) onSave(messages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   function submit(text: string) {
     const t = text.trim();
