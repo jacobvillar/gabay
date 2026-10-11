@@ -1,62 +1,61 @@
-# Gabay — Submission Package
+# Gabay: Submission
 
-**Graded Mini Project 14.3 — Ship Your Own RAG**
+**Graded Mini Project 14.3 · Ship Your Own RAG**
 
-## Deliverables
-
-| Item | Link / File |
+| | |
 | --- | --- |
-| Public app URL | https://gabay-fint.vercel.app |
-| GitHub repository | https://github.com/jacobvillar/gabay |
-| Reflection (2 pages) | [reflection.pdf](reflection.pdf) (source: [reflection.md](reflection.md)) |
-| Upload package | `gabay-submission.zip` (reflection.pdf + this file + demo questions) |
-| Demo questions | [demo-questions.md](demo-questions.md) |
+| **Live app** | <https://gabay-fint.vercel.app> |
+| **Repository** | <https://github.com/jacobvillar/gabay> |
+| **Reflection** | [reflection.pdf](reflection.pdf) (2 pages) |
+| **Demo questions** | [demo-questions.md](demo-questions.md) |
 
-## How Gabay meets each requirement
+Upload package `gabay-submission.zip` contains the reflection, this file, and the demo questions.
 
-| Requirement (final checklist) | Where / How |
-| --- | --- |
-| Deployed publicly on Vercel | https://gabay-fint.vercel.app |
-| Streams answers via the Vercel AI SDK | `app/api/chat/route.ts` → `streamText(...).toUIMessageStreamResponse()` |
-| RAG implemented as a tool call | `lib/ai/tools.ts` `searchKnowledgeBase`; model calls it (not always-prepended) |
-| Sources visible and readable under answers | `components/Sources.tsx` — numbered agency · page chips, one per document page, full title on hover, linked |
-| Non-trivial, well-chosen corpus | DOLE/SSS/PhilHealth/Pag-IBIG official handbooks (`public/docs/`, linked from every citation) |
-| Repo includes README + correct setup info | `README.md`, `docs/development/setup.md`, `.env.example` |
-| Secrets not exposed in client bundle | Keys read server-side only via `lib/config.ts`; build passes with no env |
-| Meaningful empty state | Centered greeting + suggested-prompt chips (`components/EmptyState.tsx`) |
-| Reflection specific and honest | [reflection.pdf](reflection.pdf) (2 pages) |
+## Requirements
+
+| Requirement | How Gabay meets it | Where |
+| --- | --- | --- |
+| Deployed publicly on Vercel | Live, auto-deploys from `main` | [gabay-fint.vercel.app](https://gabay-fint.vercel.app) |
+| Streams answers via the Vercel AI SDK | `streamText` → UI message stream | `app/api/chat/route.ts` |
+| RAG as a tool call | The model calls `searchKnowledgeBase` only when a question needs the handbooks | `lib/ai/tools.ts` |
+| Sources visible under answers | Agency · page chips, one per page, each opening the PDF at that page | `components/Sources.tsx` |
+| Non-trivial corpus | Official DOLE, SSS, PhilHealth and Pag-IBIG documents (1,305 chunks) | `public/docs/` |
+| README and setup info | Setup, env vars, seeding, deploy | `README.md`, `docs/development/setup.md` |
+| Secrets not in the client bundle | Keys read server-side only; the build passes with no env set | `lib/config.ts` |
+| Meaningful empty state | Greeting plus four suggested questions | `components/EmptyState.tsx` |
+| Specific, honest reflection | Decisions, strengths, weaknesses, testing, next steps | [reflection.pdf](reflection.pdf) |
 
 ## Beyond the checklist
 
-- **Sidebar** (`components/App.tsx`): New chat, collapsible Documents, and Recents
-  saved in the visitor's browser (no accounts, no server storage).
-- **No public admin upload, on purpose:** it would let anyone poison the index. New documents go
-  through `npm run seed`.
-- **Citations open the source:** each chip opens the PDF at the cited page.
-- **Hybrid retrieval:** dense + BM25 keyword search fused with reciprocal rank fusion, with an
-  optional per-agency boost to counter the SSS-heavy corpus. Keyword search keeps answering if the
-  vector index is unavailable.
-- **Graceful degradation:** a fallback chat model on rate limits, and a two-search budget so every
-  reply ends with a written answer.
-- **Chat management:** Search chats, plus Rename and Delete on each recent chat.
-- **Hardened API:** `/api/chat` rejects malformed requests with 400 and treats the browser's
-  history as untrusted (user/assistant text only, 20 messages, 4,000 characters each, 16,000 total), so a client
-  can't replace the system prompt or plant fake passages; each visitor gets 20 questions an hour;
-  the UI shows model errors with a retry.
-- **Verified ingestion:** `npm run seed` checks the stored count and a known-answer probe
-  (13th-month pay → DOLE pp. 50-54) and fails loudly otherwise; `-- --dry-run` skips Upstash.
-- **Checks:** typecheck, tests and build pass in CI; the build needs no env vars.
+**Answer quality**
+- Hybrid retrieval: dense + BM25 keyword search, fused with reciprocal rank fusion, plus an optional per-agency boost.
+- Every figure must come from a retrieved passage; off-topic questions are declined.
+- At most two searches per question, so every reply ends in a written answer.
 
-## Weekly outcomes addressed
+**Reliability**
+- Keyword search keeps answering if the vector index is unavailable.
+- A smaller fallback model takes over when the main model is rate-limited.
+- The seed verifies itself: stored count plus a known-answer probe (13th-month pay → DOLE pp. 50–54).
 
-1. Real document corpus → usable RAG knowledge base ✓ (`scripts/seed.ts`)
-2. Chunking, metadata, and embedding decisions for a live use case ✓ (see reflection table)
-3. Next.js + Vercel AI SDK streaming chat ✓
-4. Retrieval as a tool call, not prepended context ✓
-5. Public Vercel deploy with correct env configuration ✓
-6. Honest reflection on strengths, weaknesses, trade-offs ✓
+**Security**
+- No public upload, so nobody can poison the index; documents go in only through `npm run seed`.
+- Chat history from the browser is untrusted: user and assistant text only, size-capped.
+- 20 questions an hour per visitor; security headers; no question text in logs.
+
+**Interface**
+- Sidebar with New chat, Search chats, Documents, and Recents (Rename, Delete) saved in the browser. No accounts.
+
+## Weekly outcomes
+
+| Outcome | Evidence |
+| --- | --- |
+| Real corpus → usable knowledge base | `scripts/seed.ts`, 1,305 chunks with page metadata |
+| Chunking, metadata, embedding decisions | Reflection §2 |
+| Next.js + Vercel AI SDK streaming chat | `app/api/chat/route.ts` |
+| Retrieval as a tool call | `lib/ai/tools.ts` |
+| Public deploy with correct env | Live app; env set in Vercel |
+| Honest reflection | Reflection §3–§7 |
 
 ## Stack
 
-Next.js (App Router) · Vercel AI SDK v5 · Groq (open-weight GPT-OSS 120B) · Upstash Vector
-(built-in embeddings) · TypeScript · Tailwind CSS v4.
+Next.js 15 · Vercel AI SDK v5 · Groq GPT-OSS 120B · Upstash Vector (`text-embedding-3-small`) · TypeScript · Tailwind CSS v4
